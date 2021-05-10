@@ -40,9 +40,9 @@
 # class NystroemFeatures(LowRankFeatures):
 #     """Nystroem Low-Rank Feature Map."""
     
-#     def __init__(self, static_kernel, n_components=100, random_state=None):
+#     def __init__(self, base_kernel, n_components=100, random_state=None):
 #         super().__init__(n_components=n_components, random_state=random_state)
-#         self.static_kernel = static_kernel
+#         self.base_kernel = base_kernel
     
 #     def fit(self, X, y=None):
 #         # X = self._validate_data(X, ensure_2d=False)
@@ -57,7 +57,7 @@
 #         random_state = utils.check_random_state(self.random_state)
 #         basis_inds = random_state.choice(n_samples, size=self.n_components_, replace=False)
 #         basis = X[basis_inds]
-#         basis_K = self.static_kernel(basis)
+#         basis_K = self.base_kernel(basis)
 #         S, U = cp.linalg.eigh(basis_K)
 #         self.normalization_ = U / utils.robust_sqrt(S)
 #         self.components_ = basis
@@ -68,7 +68,7 @@
 #         """Computes an approximate Nystroem feature map using the kernel between the basis points and X."""
 #         check_is_fitted(self)
 #         # X = self._validate_data(X, ensure_2d=False, reset=False)
-#         embedded = self.static_kernel(X, self.components_)
+#         embedded = self.base_kernel(X, self.components_)
 #         return utils.matrix_mult(embedded, self.normalization_, transpose_Y=True)
 
 # # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
