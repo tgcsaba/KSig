@@ -4,12 +4,10 @@ A [scikit-learn](https://github.com/scikit-learn/scikit-learn) compatible Python
 
 ## Introduction
 
-The signature kernel is a mathematical construction that lifts a kernel on a given domain into **a kernel for sequences in that domain**. 
-
-This construction has many benefits:
+The signature kernel is a mathematical construction that lifts a kernel on a given domain into **a kernel for sequences in that domain** with many theoretical and practical benefits:
 - powerful theoretical guarantees, such as *universality* and optionality for *parametrization (warping) invariance*,
 - generalizes classical sequence kernels, which therefore arise as special cases,
-- strong performance on practical benchmarks.
+- strong performance on applied benchmark datasesets.
 
 The signature kernel between sequences can be computed using an instantiation of the `ksig.kernels.SignatureKernel` class by lifting a kernel for vector-valued data (in this case an RBF from the `ksig.embeddings.kernels.RBFKernel` class) to a kernel for sequences as:
 ```python
