@@ -43,7 +43,7 @@ K_XY = sig_kernel(X, Y)
 ```
 
 ## Installation
-Ideally in a clean [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) with Python >= 3.6 run the command
+Ideally in a clean [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) with Python >= 3.6, run the command
 ```
 pip install git+https://github.com/tgcsaba/ksig.git
 ```
