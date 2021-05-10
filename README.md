@@ -27,7 +27,18 @@ X = np.random.randn(n_seq, l_seq, n_feat)
 # generate 10 sequences of length 50 with 5 features
 
 K_XX = sig_kernel(X) 
-# compute the signature kernel matrix
+# compute the signature kernel matrix k(X, X)
+# more efficient than calling sig_kernel(X, X)
+# K_XX has shape (10, 10)
+
+n_seq2, l_seq2 = 8, 20
+Y = np.random.randn(n_seq2, l_seq2, n_feat)
+# generate another array of 8 sequences of length 20 and 5 features
+
+K_XY = sig_kernel(X, Y)
+# compute the kernel matrix between arrays X and Y
+# K_XY has shape (10, 8)
+
 
 ```
 
