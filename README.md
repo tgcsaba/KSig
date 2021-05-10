@@ -39,7 +39,7 @@ pip install git+https://github.com/tgcsaba/ksig.git
   
 ## More Examples
 
-Soon...
+Coming soon...
 
 
 ## Literature
