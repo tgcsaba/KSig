@@ -16,10 +16,10 @@ import ksig
 n_levels = 5 
 # number of signature levels to use
 
-base_kernel = ksig.static.kernels.RBFKernel() 
+static_kernel = ksig.static.kernels.RBFKernel() 
 # an RBF base kernel for vector-valued data which is lifted to a kernel for sequences
 
-sig_kernel = ksig.kernels.SignatureKernel(n_levels, base_kernel=base_kernel) 
+sig_kernel = ksig.kernels.SignatureKernel(n_levels, static_kernel=static_kernel) 
 # a SignatureKernel object, which works as a callable for computing the signature kernel matrix
 
 n_seq, l_seq, n_feat = 10, 50, 5 
