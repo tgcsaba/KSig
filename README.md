@@ -65,7 +65,7 @@ Some papers that involve signature kernels in one way or another are (in chronol
 
 - [Persistence Paths and Signature Features in Topological Data Analysis](https://arxiv.org/abs/1806.00381) by Chevyrev, Nanda, Oberhauser
 
-- [Bayesian Learning From Sequential Data Using Gaussian Processes With Signature Covariances](http://proceedings.mlr.press/v119/toth20a.html) by Toth, Oberhauser
+- [Bayesian Learning From Sequential Data Using GPs With Signature Covariances](http://proceedings.mlr.press/v119/toth20a.html) by Toth, Oberhauser
 
 - [Signature Moments to Characterize Laws of Stochastic Processes](https://arxiv.org/abs/1810.10971) by Chevyrev, Oberhauser
 
