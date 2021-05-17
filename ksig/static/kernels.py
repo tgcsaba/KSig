@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -6,35 +8,32 @@ import cupy as cp
 from sklearn.base import BaseEstimator
 
 from .. import utils
+from ..utils import ArrayOnCPU, ArrayOnGPU, ArrayOnCPUOrGPU, RandomStateOrSeed
 
-from typing import Optional, Union
+from typing import Optional
 
-ArrayOnCPU = np.ndarray
-ArrayOnGPU = cp.ndarray
-ArrayOnCPUOrGPU = Union[cp.ndarray, np.ndarray]
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 class Kernel(BaseEstimator, metaclass=ABCMeta):
-    """Base class for kernels.
+    """Base class for Kernels.
     
     Warning: This class should not be used directly.
     Use derived classes instead.
     """
         
-    def fit(X : ArrayOnCPUOrGPU, y : Optional[ArrayOnCPUOrGPU] = None) -> None:
-        pass
+    def fit(X : ArrayOnCPUOrGPU, y : Optional[ArrayOnCPUOrGPU] = None) -> Kernel:
+        return self
         
     @abstractmethod
-    def _K(self, X : ArrayOnGPU, Y : Optional[ArrayOnGPU] = None) -> None:
+    def _K(self, X : ArrayOnGPU, Y : Optional[ArrayOnGPU] = None) -> ArrayOnGPU:
         pass
     
     @abstractmethod
-    def _Kdiag(self, X : ArrayOnGPU) -> None:
+    def _Kdiag(self, X : ArrayOnGPU) -> ArrayOnGPU:
         pass
 
     def __call__(self, X : ArrayOnCPUOrGPU, Y : Optional[ArrayOnCPUOrGPU] = None, diag : bool = False, return_on_gpu : bool = False) -> ArrayOnCPUOrGPU:
-    
         X = cp.asarray(X)
         Y = cp.asarray(Y) if Y is not None else None
         if diag:
@@ -43,7 +42,6 @@ class Kernel(BaseEstimator, metaclass=ABCMeta):
             K =  self._K(X, Y)
         if not return_on_gpu:
             K = cp.asnumpy(K)
-            
         return K
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------

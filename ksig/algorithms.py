@@ -3,9 +3,9 @@ import cupy as cp
 
 from typing import Optional, Union, List
 
-ArrayOnCPU = np.ndarray
-ArrayOnGPU = cp.ndarray
-ArrayOnCPUOrGPU = Union[cp.ndarray, np.ndarray]
+from .projections import RandomProjection
+
+from .utils import ArrayOnCPU, ArrayOnGPU, ArrayOnCPUOrGPU, RandomStateOrSeed
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Helpers
@@ -43,7 +43,7 @@ def multi_cumsum(M : ArrayOnGPU, exclusive : bool = False, axis : int = -1) -> A
 # Signature algs
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def signature_kern(M : ArrayOnGPU, n_levels : int, order : int = -1, difference : bool = True, return_levels : bool = False) -> Union[List[ArrayOnGPU], ArrayOnGPU]:
+def signature_kern(M : ArrayOnGPU, n_levels : int, order : int = -1, difference : bool = True, return_levels : bool = False) -> ArrayOnGPU:
     """Wrapper for signature kernel algorithms. If order==1 then it uses a simplified, more efficient implementation."""
     order = n_levels if order <= 0 or order >= n_levels else order
     if order==1:
@@ -53,7 +53,7 @@ def signature_kern(M : ArrayOnGPU, n_levels : int, order : int = -1, difference 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def signature_kern_first_order(M : ArrayOnGPU, n_levels : int, difference : bool = True, return_levels : bool = False) -> Union[List[ArrayOnGPU], ArrayOnGPU]:
+def signature_kern_first_order(M : ArrayOnGPU, n_levels : int, difference : bool = True, return_levels : bool = False) -> ArrayOnGPU:
     """
     Computes the signature kernel matrix with first-order embedding into the tensor algebra. 
     """
@@ -85,7 +85,7 @@ def signature_kern_first_order(M : ArrayOnGPU, n_levels : int, difference : bool
     
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def signature_kern_higher_order(M : ArrayOnGPU, n_levels : int, order : int, difference : bool = True, return_levels : bool = False) -> Union[List[ArrayOnGPU], ArrayOnGPU]:
+def signature_kern_higher_order(M : ArrayOnGPU, n_levels : int, order : int, difference : bool = True, return_levels : bool = False) -> ArrayOnGPU:
     """
     Computes the signature kernel matrix with higher-order embedding into the tensor algebra. 
     """
@@ -127,80 +127,92 @@ def signature_kern_higher_order(M : ArrayOnGPU, n_levels : int, order : int, dif
 # Low-Rank algs
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# def signature_kern_first_order_low_rank(U, n_levels, difference=True, return_levels=False, projections=None):
-#     """
-#     Computes a low-rank feature approximation corresponding to the (truncated) signature kernel with first-order embedding into the tensor algebra.
-#     """
-    
-#     if difference:
-#         U = cp.diff(U, axis=1)
+def signature_kern_low_rank(U : ArrayOnGPU, n_levels : int, order : int = -1, difference : bool = True, return_levels : bool = False,
+                            projections : Optional[RandomProjection] = None) -> Union[List[ArrayOnGPU], ArrayOnGPU]:
+    """Wrapper for low-rank signature kernel algs. If order==1 then it uses a simplified, more efficient implementation."""
+    order = n_levels if order <= 0 or order >= n_levels else order
+    if order==1:
+        return signature_kern_first_order_low_rank(U, n_levels, difference=difference, return_levels=return_levels, projections=projections)
+    else:
+        return signature_kern_higher_order_low_rank(U, n_levels, order=order, difference=difference, return_levels=return_levels, projections=projections)
         
-#     n_X, l_X, d = U.shape
-#     P = cp.ones((n_X), dtype=U.dtype)
-    
-#     if projections is not None:
-#         U = projections[0](U)
-    
-#     if return_levels:
-#         P = [P, cp.sum(U, axis=1)]
-#     else:
-#         P = cp.concatenate((P, cp.sum(U, axis=1)), axis=-1)
-    
-#     R = cp.copy(U)
-#     for i in range(1, n_levels):
-#         R = multi_cumsum(R, axis=1, exclusive=True)
-#         if projections is None:
-#             R = cp.reshape(U[..., :, None] * R[..., None, :] (n_X, l_X, -1))
-#         else:
-#             R = projections[i](U, R)
-#         if return_levels:
-#             P.append(cp.sum(R, axis=1))
-#         else:
-#             P = cp.concatenate((P, cp.sum(R, axis=1)), axis=-1)
-#     return P
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# def signature_kern_higher_order_low_rank(U, n_levels, order=-1, difference=True, return_levels=False, projections=None):
-#     """
-#     Computes a low-rank feature approximation corresponding to the (truncated) signature kernel with higher-order embedding into the tensor algebra.
-#     """
+def signature_kern_first_order_low_rank(U : ArrayOnGPU, n_levels : int, difference : bool = True, return_levels : bool = False,
+                                        projections : Optional[RandomProjection] = None) -> Union[List[ArrayOnGPU], ArrayOnGPU]:
+    """
+    Computes a low-rank feature approximation corresponding to the signature kernel with first-order embedding into the tensor algebra.
+    """
     
-#     if difference:
-#         U = cp.diff(U, axis=1)
+    if difference:
+        U = cp.diff(U, axis=1)
         
-#     n_X, l_X, d = U.shape
-#     P = cp.ones((n_X), dtype=U.dtype)
+    n_X, l_X, n_d = U.shape
+    P = cp.ones((n_X, 1), dtype=U.dtype)
     
-#     if projections is not None:
-#         U = projections[0](U)
-    
-#     if return_levels:
-#         P = [P, cp.sum(U, axis=1)]
-#     else:
-#         P = cp.concatenate((P, cp.sum(U, axis=1)), axis=-1)
-    
-#     R = cp.copy(U)
-#     for i in range(1, n_levels):
-#         p = min(i+1, order)
-#         n_components = projections[i].n_components_ if projections is not None else d**(i+1)
-#         R_next = np.empty((p, n_X, l_X, n_components))
+    R = projections[0](U, return_on_gpu=True) if projections is not None else cp.copy(U)
+    R_sum = cp.sum(R, axis=1)
+    if return_levels:
+        P = [P, R_sum]
+    else:
+        P = cp.concatenate((P, R_sum), axis=-1)
         
-#         Q = multi_cumsum(cp.sum(R, axis=0), axis=1, exclusive=True)
-#         if projections is None:
-#             R_next[0] = cp.reshape(U[..., :, None] * Q[..., None, :] (n_X, l_X, -1))
-#         else:
-#             R_next[0] = projections[i](U, Q)
-#         for r in range(1, d):
-#             if projections is None:
-#                 R_next[r] = 1. / (r+1) * cp.reshape(U[..., :, None] * R[r-1, ..., None, :], (n_X, l_X, n_components))
-#             else:
-#                 R_next[r] = 1. / (r+1) * projections[i](U, R_next[r-1])
-#         R = R_next
-#         if return_levels:
-#             P.append(cp.sum(R, axis=1))
-#         else:
-#             P = cp.concatenate((P, cp.sum(R, axis=1)), axis=-1)
-#     return P
+    for i in range(1, n_levels):
+        R = multi_cumsum(R, axis=1, exclusive=True)
+        if projections is None:
+            R = cp.reshape(R[..., :, None] * U[..., None, :], (n_X, l_X, -1))
+        else:
+            R = projections[i](R, U, return_on_gpu=True)
+        R_sum = cp.sum(R, axis=1)
+        if return_levels:
+            P.append(R_sum)
+        else:
+            P = cp.concatenate((P, cp.sum(R, axis=1)), axis=-1)
+    return P
 
-# # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def signature_kern_higher_order_low_rank(U : ArrayOnGPU, n_levels : int, order : int = -1, difference : bool = True, return_levels : bool = False,
+                                         projections : Optional[RandomProjection] = None) -> Union[List[ArrayOnGPU], ArrayOnGPU]:
+    """
+    Computes a low-rank feature approximation corresponding to the signature kernel with higher-order embedding into the tensor algebra.
+    """
+    
+    if difference:
+        U = cp.diff(U, axis=1)
+        
+    n_X, l_X, n_d = U.shape
+    P = cp.ones((n_X, 1), dtype=U.dtype)
+    
+    R = projections[0](U, return_on_gpu=True) if projections is not None else cp.copy(U)
+    R_sum = cp.sum(R, axis=1)
+    if return_levels:
+        P = [P, R_sum]
+    else:
+        P = cp.concatenate((P, R_sum), axis=-1)
+    
+    R = R[None]
+    for i in range(1, n_levels):
+        d = min(i+1, order)
+        n_components = projections[i].n_components_ if projections is not None else n_d**(i+1)
+        R_next = cp.empty((d, n_X, l_X, n_components))
+        
+        Q = multi_cumsum(cp.sum(R, axis=0), axis=1, exclusive=True)
+        if projections is None:
+            R_next[0] = cp.reshape(Q[..., :, None] * U[..., None, :], (n_X, l_X, -1))
+        else:
+            R_next[0] = projections[i](Q, U, return_on_gpu=True)
+        for r in range(1, d):
+            if projections is None:
+                R_next[r] = 1. / (r+1) * cp.reshape(R[r-1, ..., :, None] * U[..., None, :], (n_X, l_X, n_components))
+            else:
+                R_next[r] = 1. / (r+1) * projections[i](R[r-1], U, return_on_gpu=True)
+        R = R_next
+        R_sum = cp.sum(R, axis=(0, 2))
+        if return_levels:
+            P.append(R_sum)
+        else:
+            P = cp.concatenate((P, R_sum), axis=-1)
+    return P
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------

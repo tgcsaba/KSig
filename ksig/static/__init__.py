@@ -1,2 +1,2 @@
-# from . import features
+from . import features
 from . import kernels
