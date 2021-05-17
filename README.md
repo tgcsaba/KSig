@@ -4,22 +4,22 @@ A [scikit-learn](https://github.com/scikit-learn/scikit-learn) compatible Python
 
 ## Introduction
 
-The signature kernel is a mathematical construction that lifts a kernel on a given domain into **a kernel for sequences in that domain** with many theoretical and practical benefits:
+The signature kernel is a mathematical construction that lifts a kernel on a given domain to **a kernel for sequences in that domain** with many theoretical and practical benefits:
 - powerful theoretical guarantees, such as *universality* and optionality for *parametrization (warping) invariance*,
 - generalizes classical sequence kernels, which therefore arise as special cases,
 - strong performance on applied benchmark datasesets.
 
-The signature kernel between sequences can be computed using an instantiation of the `ksig.kernels.SignatureKernel` class by lifting a kernel for vector-valued data (in this case an RBF from the `ksig.embeddings.kernels.RBFKernel` class) to a kernel for sequences as:
+The signature kernel between sequences can be computed using an instantiation of the `ksig.kernels.SignatureKernel` class by lifting a static kernel (i.e. in this case an RBF kernel for vector-valued data from the `ksig.static.kernels.RBFKernel` class) to a kernel for sequences as:
 ```python
 import ksig
 
 n_levels = 5 
 # number of signature levels to use
 
-base_kernel = ksig.embeddings.kernels.RBFKernel() 
+static_kernel = ksig.static.kernels.RBFKernel() 
 # an RBF base kernel for vector-valued data which is lifted to a kernel for sequences
 
-sig_kernel = ksig.kernels.SignatureKernel(n_levels, base_kernel=base_kernel) 
+sig_kernel = ksig.kernels.SignatureKernel(n_levels, static_kernel=static_kernel) 
 # a SignatureKernel object, which works as a callable for computing the signature kernel matrix
 
 n_seq, l_seq, n_feat = 10, 50, 5 
@@ -30,6 +30,10 @@ K_XX = sig_kernel(X)
 # compute the signature kernel matrix k(X, X)
 # more efficient than calling sig_kernel(X, X)
 # K_XX has shape (10, 10)
+
+K_X = sig_kernel(X, diag=True)
+# compute only the diagonal entries of the signature kernel matrix
+# K_X has shape (10,)
 
 n_seq2, l_seq2 = 8, 20
 Y = np.random.randn(n_seq2, l_seq2, n_feat)
@@ -61,7 +65,7 @@ Some papers that involve signature kernels in one way or another are (in chronol
 
 - [Persistence Paths and Signature Features in Topological Data Analysis](https://arxiv.org/abs/1806.00381) by Chevyrev, Nanda, Oberhauser
 
-- [Bayesian Learning From Sequential Data Using Gaussian Processes With Signature Covariances](http://proceedings.mlr.press/v119/toth20a.html) by Toth, Oberhauser
+- [Bayesian Learning From Sequential Data Using GPs With Signature Covariances](http://proceedings.mlr.press/v119/toth20a.html) by Toth, Oberhauser
 
 - [Signature Moments to Characterize Laws of Stochastic Processes](https://arxiv.org/abs/1810.10971) by Chevyrev, Oberhauser
 
