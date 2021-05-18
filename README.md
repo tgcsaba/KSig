@@ -89,7 +89,7 @@ lr_sig_kernel = ksig.kernels.LowRankSignatureKernel(n_levels=n_levels, static_fe
 
 n_seq, l_seq, n_feat = 1000, 200, 100
 X = np.random.randn(n_seq, l_seq, n_feat)
-# generate 1000 sequences of length 500 with 100 features
+# generate 1000 sequences of length 200 with 100 features
 
 lr_sig_kernel.fit(X)
 # fit the kernel to the data
@@ -99,9 +99,9 @@ K_XX = lr_sig_kernel(X) # K_XX has shape (1000, 1000)
 
 n_seq2, l_seq2 = 800, 250
 Y = np.random.randn(n_seq2, l_seq2, n_feat)
-# generate another array of 500 sequences of length 400 and 10 features
+# generate another array of 800 sequences of length 250 and 100 features
 
-K_XY = lr_sig_kernel(X, Y) # K_XY has shape (1000, 500)
+K_XY = lr_sig_kernel(X, Y) # K_XY has shape (1000, 800)
 # compute the kernel matrix between arrays X and Y
 # the kernel does not have to be fitted a second time
 
