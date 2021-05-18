@@ -76,18 +76,18 @@ n_components = 100
 static_kernel = ksig.static.kernels.RBFKernel() 
 # an RBF kernel for vector-valued data
 
-static_features = ksig.static.features.NystroemFeatures(static_features, n_components=n_components)
+static_feat = ksig.static.features.NystroemFeatures(static_kernel, n_components=n_components)
 # Nystroem features with an RBF base kernel
 
-projection = ksig.projections.CountSketchRandomProjection(n_components=n_components)
+proj = ksig.projections.CountSketchRandomProjection(n_components=n_components)
 # a CountSketch random projection 
 
-lr_sig_kernel = ksig.kernels.LowRankSignatureKernel(n_levels=n_levels, static_features=static_features, projection=projection)
+lr_sig_kernel = ksig.kernels.LowRankSignatureKernel(n_levels=n_levels, static_features=static_feat, projection=proj)
 # a low-rank signature kernel, which additionally to working as a callable for kernel matrix computations
 # also implements a fit method, which must be used to fit the kernel (and its subobjects) to the data
 # and a transform method, which can be used to transform an array of paths to their corresponding low-rank features
 
-n_seq, l_seq, n_feat = 1000, 500, 100
+n_seq, l_seq, n_feat = 1000, 200, 100
 X = np.random.randn(n_seq, l_seq, n_feat)
 # generate 1000 sequences of length 500 with 100 features
 
@@ -97,7 +97,7 @@ lr_sig_kernel.fit(X)
 K_XX = lr_sig_kernel(X) # K_XX has shape (1000, 1000)
 # compute the low-rank signature kernel matrix k(X, X)
 
-n_seq2, l_seq2 = 500, 400
+n_seq2, l_seq2 = 800, 250
 Y = np.random.randn(n_seq2, l_seq2, n_feat)
 # generate another array of 500 sequences of length 400 and 10 features
 
@@ -112,7 +112,6 @@ P_Y = lr_sig_kernel.transform(Y) # P_Y shape shape (800, 501)
 
 print(np.linalg.norm(K_XX - P_X @ P_X.T)) # 1.5336806154787045e-14
 print(np.linalg.norm(K_XY - P_X @ P_Y.T)) # 0.0
-
 ```
 
 ## Documentation
