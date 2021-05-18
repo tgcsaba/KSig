@@ -57,7 +57,7 @@ This variant of the kernel variant can be defined using the `ksig.kernel.LowRank
 * a `static_features` object from `ksig.static.features` for low-rank approximation of a static kernel, such as:
     * `NystroemFeatures` implementing the [Nyström Method](https://papers.nips.cc/paper/2000/file/19de10adbaa1b2ee13f77f679fa1483a-Paper.pdf)
     * `RBFFourierFeatures` using a variant of [Random Kitchen Sinks](https://people.eecs.berkeley.edu/~brecht/papers/07.rah.rec.nips.pdf) for Monte Carlo approximation of the RBF
-* a `projection` object from `ksig.projections` for randomized projections keeping the size of low-rank factors manageable, e.g.
+* a `projection` object from `ksig.projections` for randomized projections keeping the size of low-rank factors manageable, e.g.:
     * `GaussianRandomProjection` implementing vanilla [Gaussian Random Projections](https://arxiv.org/ftp/arxiv/papers/1301/1301.3849.pdf)
     * `VerySparseRandomProjection` using [Very Sparse Random Projections](https://web.stanford.edu/~hastie/Papers/Ping/KDD06_rp.pdf)
     * `CountSketchRandomProjection` for [CountSketch](https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf) with polynomial multiplication via FFT, i.e. the [TensorSketch](https://dl.acm.org/doi/10.1145/2487575.2487591).
