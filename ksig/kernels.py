@@ -66,7 +66,7 @@ class SignatureBase(Kernel, metaclass=ABCMeta):
 class SignatureKernel(SignatureBase):
     """Class for full-rank signature kernel."""
     
-    def __init__(self, n_levels : int = 5, order : int = 1, sigma : float = 1.0, difference : bool = True, normalization : bool = False,
+    def __init__(self, n_levels : int = 4, order : int = -1, sigma : float = 1.0, difference : bool = True, normalization : bool = False,
                  n_features : Optional[int] = None, static_kernel : Optional[Kernel] = None) -> None:
     
         super().__init__(n_levels=n_levels, order=order, sigma=sigma, difference=difference, normalization=normalization, n_features=n_features)
@@ -118,7 +118,7 @@ class SignatureKernel(SignatureBase):
 
 class LowRankSignatureKernel(SignatureBase, LowRankFeatures):
     """Class for low-rank signature kernel."""
-    def __init__(self, n_levels : int = 5, order : int = 1, sigma : float = 1.0, difference : bool = True, normalization : bool = False, 
+    def __init__(self, n_levels : int = 4, order : int = -1, sigma : float = 1.0, difference : bool = True, normalization : bool = False, 
                  n_features : Optional[int] = None, static_features : Optional[LowRankFeatures] = None, projection : Optional[RandomProjection] = None) -> None:
     
         super().__init__(n_levels=n_levels, order=order, sigma=sigma, difference=difference, normalization=normalization, n_features=n_features)
