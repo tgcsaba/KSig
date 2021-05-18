@@ -62,7 +62,7 @@ This variant of the kernel variant can be defined using the `ksig.kernel.LowRank
     * `VerySparseRandomProjection` using [Very Sparse Random Projections](https://web.stanford.edu/~hastie/Papers/Ping/KDD06_rp.pdf)
     * `CountSketchRandomProjection` for using [CountSketch](https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf) together with polynomial multiplication via FFT, i.e. the [TensorSketch](https://dl.acm.org/doi/10.1145/2487575.2487591).
 
-Here is how one would use this:
+The following example can be computed on a GPU with about ~5Gb of free memory in a matter of seconds:
 ```python
 import numpy as np
 import ksig
