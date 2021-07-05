@@ -1,4 +1,4 @@
-# <p align='center'> KSig </p>
+# <p align='center'> K<sub>Sig</sub> </p>
 ## <p align='center'> GPU-accelerated computation of the signature kernel </p>
 A [scikit-learn](https://github.com/scikit-learn/scikit-learn) compatible Python package for GPU-accelerated computation of the [signature kernel](https://jmlr.org/papers/v20/16-314.html) using [CuPy](https://github.com/cupy/cupy). This is a companion package to [GPSig](https://github.com/tgcsaba/GPSig), which implements (automatic) differentiable computations of the signature kernel using TensorFlow and GPFlow. 
 
