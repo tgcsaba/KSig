@@ -3,7 +3,7 @@ import cupy as cp
 
 from typing import Optional, Union, List
 
-from .projections import RandomProjection
+from .projections import RandomProjection, TensorizedRandomProjection
 
 from .utils import ArrayOnCPU, ArrayOnGPU, ArrayOnCPUOrGPU, RandomStateOrSeed
 
@@ -151,7 +151,8 @@ def signature_kern_first_order_low_rank(U : ArrayOnGPU, n_levels : int, differen
     P = cp.ones((n_X, 1), dtype=U.dtype)
     
     R = projections[0](U, return_on_gpu=True) if projections is not None else cp.copy(U)
-    R_sum = cp.sum(R, axis=1)
+    R_sum = cp.sum(R.reshape([n_X, l_X, projections[0].n_components, projections[0].rank]), axis=(1, -1)) if projections is not None \
+            and isinstance(projections[0], TensorizedRandomProjection) else cp.sum(R, axis=1)
     if return_levels:
         P = [P, R_sum]
     else:
@@ -163,7 +164,8 @@ def signature_kern_first_order_low_rank(U : ArrayOnGPU, n_levels : int, differen
             R = cp.reshape(R[..., :, None] * U[..., None, :], (n_X, l_X, -1))
         else:
             R = projections[i](R, U, return_on_gpu=True)
-        R_sum = cp.sum(R, axis=1)
+        R_sum = cp.sum(R.reshape([n_X, l_X, projections[i].n_components, projections[i].rank]), axis=(1, -1)) if projections is not None \
+                and isinstance(projections[i], TensorizedRandomProjection) else cp.sum(R, axis=1)
         if return_levels:
             P.append(R_sum)
         else:
@@ -185,7 +187,8 @@ def signature_kern_higher_order_low_rank(U : ArrayOnGPU, n_levels : int, order :
     P = cp.ones((n_X, 1), dtype=U.dtype)
     
     R = projections[0](U, return_on_gpu=True) if projections is not None else cp.copy(U)
-    R_sum = cp.sum(R, axis=1)
+    R_sum = cp.sum(R.reshape([n_X, l_X, projections[0].n_components, projections[0].rank]), axis=(1, -1)) if projections is not None \
+            and isinstance(projections[0], TensorizedRandomProjection) else cp.sum(R, axis=1)
     if return_levels:
         P = [P, R_sum]
     else:
@@ -208,7 +211,8 @@ def signature_kern_higher_order_low_rank(U : ArrayOnGPU, n_levels : int, order :
             else:
                 R_next[r] = 1. / (r+1) * projections[i](R[r-1], U, return_on_gpu=True)
         R = R_next
-        R_sum = cp.sum(R, axis=(0, 2))
+        R_sum = cp.sum(R.reshape([d, n_X, l_X, projections[i].n_components, projections[i].rank]), axis=(0, 2, -1)) if projections is not None \
+                and isinstance(projections[i], TensorizedRandomProjection) else cp.sum(R, axis=(0, 2))
         if return_levels:
             P.append(R_sum)
         else:

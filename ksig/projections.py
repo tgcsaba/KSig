@@ -189,5 +189,38 @@ class CountSketchRandomProjection(RandomProjection):
     def _project_outer_prod(self, X_count_sketch : ArrayOnGPU, Z : ArrayOnGPU) -> ArrayOnGPU:
         Z_count_sketch = utils.compute_count_sketch(Z, self.hash_index_, self.hash_bit_, n_components=self.n_components_)
         return utils.convolve_count_sketches(X_count_sketch, Z_count_sketch)
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+class TensorizedRandomProjection(RandomProjection):
+    """Tensorized Random Projection (in the CP format) exclusively for use within the Low-Rank Signature Algorithm.
     
-# # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    Warning: this is not intended to be used as a standalone random projection.
+    Specifically, when used as a projection on a feature matrix, it works analogously to a vanilla Gaussian RP.
+    """
+    def __init__(self, n_components : int = 100, rank : int = 10, random_state : Optional[RandomStateOrSeed] = None) -> None:
+        super().__init__(n_components=n_components, random_state=random_state)
+        self.rank = utils.check_positive_value(rank, 'rank')
+        
+    def _check_n_features(self, X : ArrayOnCPUOrGPU, Z : Optional[ArrayOnCPUOrGPU] = None, reset : bool = False) -> None:
+        n_features = Z.shape[-1] if Z is not None else X.shape[-1]
+        if reset or not hasattr(self, 'n_features_') or self.n_features_ is None:
+            self.n_features_ = n_features
+        elif n_features != self.n_features_:
+            raise ValueError(f'Received data with a different number of features than at fit time. ({n_features} != {self.n_features_})')
+        
+    def _check_n_components(self, X : ArrayOnCPUOrGPU, Z : Optional[ArrayOnCPUOrGPU] = None) -> None:
+        self.n_components_ = self.n_components * self.rank
+    
+    def _make_projection_components(self, X : ArrayOnCPUOrGPU, Z : Optional[ArrayOnCPUOrGPU] = None) -> None:
+        random_state = utils.check_random_state(self.random_state)
+        self.components_ = random_state.normal(size=(self.n_features_, self.n_components_))
+        self.scaling_ = 1. / cp.sqrt(self.n_components_) if Z is None else 1.
+        
+    def _project_features(self, X : ArrayOnGPU) -> ArrayOnGPU:
+        return self.scaling_ * utils.matrix_mult(X.reshape([-1, self.n_features_]), self.components_).reshape(X.shape[:-1] + (-1,))
+        
+    def _project_outer_prod(self, X : ArrayOnGPU, Z : ArrayOnGPU) -> ArrayOnGPU:
+        return self.scaling_ * X * utils.matrix_mult(Z.reshape([-1, self.n_features_]), self.components_).reshape(Z.shape[:-1] + (-1,))
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
