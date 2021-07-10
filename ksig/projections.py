@@ -453,41 +453,14 @@ class CountSketchRandomProjection(RandomProjection):
 class TensorizedRandomProjection(RandomProjection):
     """Tensorized Random Projection (in the CP format) exclusively for use within the Low-Rank Signature Algorithm.
     
-    Reference:
-        * Sun, Y., Guo, Y., Tropp, J.A. and Udell, M.
-          "Tensor random projection for low memory dimension reduction"
-          arXiv preprint arXiv:2105.00105 (2021).
-        * Rakhshan, B. and Rabusseau, G.
-          "Tensorized random projections"
-          International Conference on Artificial Intelligence and Statistics 2020
-    
     Warning: this is not intended to be used as a standalone random projection.
-    Specifically, when used as a standalone RP on a feature matrix, it works analogously to vanilla Gaussian RP.
+    Specifically, when used as a projection on a feature matrix, it works analogously to a vanilla Gaussian RP.
     """
     def __init__(self, n_components : int = 100, rank : int = 10, random_state : Optional[RandomStateOrSeed] = None) -> None:
-        """Initializer for the RBFFourierFeatures class.
-
-        Args:
-            n_components (int, optional): The number of projection components to use. Defaults to 100.
-            rank (int, optional): The rank of projection tensors. Defaults to 10.
-            random_state (Optional[RandomStateOrSeed], optional): Random state or seed value for reproducibility. Defaults to None.
-        """
         super().__init__(n_components=n_components, random_state=random_state)
         self.rank = utils.check_positive_value(rank, 'rank')
         
     def _check_n_features(self, X : ArrayOnCPUOrGPU, Z : Optional[ArrayOnCPUOrGPU] = None, reset : bool = False) -> None:
-        """Custom method to check or reset the n_features dimension in the data, which is the dimension along the last axis. 
-        
-        Note that if Z is specified then the number of features is equal to number of features in Z, otherwise to the number of features in X. 
-
-        Args:
-            X (ArrayOnCPUOrGPU): First input data as a NumPy or CuPy array.
-            Z (Optional[ArrayOnCPUOrGPU], optional): Second input data as a NumPy or CuPy array.
-            reset (bool, optional): Whether to reset an already saved n_features_ parameter. Defaults to False.. Defaults to False.
-
-        Raises:
-            ValueError: If not reset and n_features_ was set before and the current number of features does not match it, then it raises an error.
-        """
         n_features = Z.shape[-1] if Z is not None else X.shape[-1]
         if reset or not hasattr(self, 'n_features_') or self.n_features_ is None:
             self.n_features_ = n_features
