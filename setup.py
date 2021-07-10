@@ -19,7 +19,7 @@ setup(
     keywords='machine-learning sequences time-series kernels signatures support-vector-machines cupy scikit-learn sklearn',
     url='https://github.com/tgcsaba/KSig',
     packages=['ksig'],
-    install_requires=['numpy', 'scikit-learn', 'cupy'],
+    install_requires=['numpy>=1.20.0', 'scikit-learn>=0.24.0', 'cupy>=9.0.0'],
     python_requires='>=3.7',
     classifiers=[
         'Audience :: Developers',
