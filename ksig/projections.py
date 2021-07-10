@@ -453,32 +453,95 @@ class CountSketchRandomProjection(RandomProjection):
 class TensorizedRandomProjection(RandomProjection):
     """Tensorized Random Projection (in the CP format) exclusively for use within the Low-Rank Signature Algorithm.
     
+    This function is meant to be called recursively for each consecutive multiplicative term in the CP decomposition of a tensor.
+    For example, if a tensor is given as 
+        X = \sum_i x_i1 \otimes x_i2 \otimes \dots \otimes x_im,
+    then the desired low-rank projection of the tensor X can be achieved by
+        X_proj = \sum_i TRP_m(...(TRP2(TRP1(x_i1), x_i2), ...), x_im)
+    The reason for this is that this object is meant to be used within the low-rank signature algorithms, which have such recursive structure.
+    
+    Reference:
+        * Sun, Y., Guo, Y., Tropp, J.A. and Udell, M.
+          "Tensor random projection for low memory dimension reduction"
+          arXiv preprint arXiv:2105.00105 (2021).
+        * Rakhshan, B. and Rabusseau, G.
+          "Tensorized random projections"
+          International Conference on Artificial Intelligence and Statistics 2020
+    
     Warning: this is not intended to be used as a standalone random projection.
-    Specifically, when used as a projection on a feature matrix, it works analogously to a vanilla Gaussian RP.
+    Specifically, when used as a standalone RP on a feature matrix, it works analogously to vanilla Gaussian RP.
+    
     """
     def __init__(self, n_components : int = 100, rank : int = 10, random_state : Optional[RandomStateOrSeed] = None) -> None:
+        """Initializer for the RBFFourierFeatures class.
+        Args:
+            n_components (int, optional): The number of projection components to use. Defaults to 100.
+            rank (int, optional): The rank of projection tensors. Defaults to 10.
+            random_state (Optional[RandomStateOrSeed], optional): Random state or seed value for reproducibility. Defaults to None.
+        """
         super().__init__(n_components=n_components, random_state=random_state)
         self.rank = utils.check_positive_value(rank, 'rank')
-        
+
     def _check_n_features(self, X : ArrayOnCPUOrGPU, Z : Optional[ArrayOnCPUOrGPU] = None, reset : bool = False) -> None:
+        """Custom method to check or reset the n_features dimension in the data, which is the dimension along the last axis. 
+        
+        Note that if Z is specified then the number of features is equal to number of features in Z, otherwise to the number of features in X. 
+        Args:
+            X (ArrayOnCPUOrGPU): First input data as a NumPy or CuPy array.
+            Z (Optional[ArrayOnCPUOrGPU], optional): Second input data as a NumPy or CuPy array.
+            reset (bool, optional): Whether to reset an already saved n_features_ parameter. Defaults to False.. Defaults to False.
+        Raises:
+            ValueError: If not reset and n_features_ was set before and the current number of features does not match it, then it raises an error.
+        """
         n_features = Z.shape[-1] if Z is not None else X.shape[-1]
         if reset or not hasattr(self, 'n_features_') or self.n_features_ is None:
             self.n_features_ = n_features
-        elif n_features != self.n_features_:
-            raise ValueError(f'Received data with a different number of features than at fit time. ({n_features} != {self.n_features_})')
         
     def _check_n_components(self, X : ArrayOnCPUOrGPU, Z : Optional[ArrayOnCPUOrGPU] = None) -> None:
+        """Custom method to set the "effective" number of components for the Tensorized RP..
+
+        Args:
+            X (ArrayOnCPUOrGPU): First input data as a NumPy or CuPy array.
+            Z (Optional[ArrayOnCPUOrGPU], optional): Second input data as a NumPy or CuPy array. Defaults to None.
+        """
         self.n_components_ = self.n_components * self.rank
     
     def _make_projection_components(self, X : ArrayOnCPUOrGPU, Z : Optional[ArrayOnCPUOrGPU] = None) -> None:
+        """Initializes data dependent variables for a Tensorized RP.
+
+        Args:
+            X (ArrayOnCPUOrGPU): First input data as a NumPy or CuPy array.
+            Z (Optional[ArrayOnCPUOrGPU], optional): Second input data as a NumPy or CuPy array. Defaults to None.
+        """
         random_state = utils.check_random_state(self.random_state)
         self.components_ = random_state.normal(size=(self.n_features_, self.n_components_))
         self.scaling_ = 1. / cp.sqrt(self.n_components_) if Z is None else 1.
         
     def _project_features(self, X : ArrayOnGPU) -> ArrayOnGPU:
+        """Computes and returns the projection of the first multiplicate term in the CP decomposition.
+        
+        Warning: For a single feature matrix X, the Tensorized RP is simply analogous to a vanilla Gaussian RP
+        with simply an (n_components * rank) number of components.
+
+        Args:
+            X (ArrayOnGPU): Input data as a CuPy array.
+
+        Returns:
+            ArrayOnGPU: Sketch of the input data, X, as a CuPy array.
+        """
         return self.scaling_ * utils.matrix_mult(X.reshape([-1, self.n_features_]), self.components_).reshape(X.shape[:-1] + (-1,))
         
     def _project_outer_prod(self, X : ArrayOnGPU, Z : ArrayOnGPU) -> ArrayOnGPU:
+        """Computes and returns the projection for the next multiplicative term in the CP decomposition. 
+        
+        This function assumes that X is already projected, and hence, only projects Z and multiplies the two together.
+
+        Args:
+            X (ArrayOnGPU): First input data as a CuPy array.
+            Z (ArrayOnGPU): Second input data as a CuPy array.
+        Returns:
+            ArrayOnGPU: Sketch of the input data, outer(X, Z), as a CuPy array.
+        """
         return self.scaling_ * X * utils.matrix_mult(Z.reshape([-1, self.n_features_]), self.components_).reshape(Z.shape[:-1] + (-1,))
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
