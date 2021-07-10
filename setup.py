@@ -1,7 +1,7 @@
 from setuptools import setup
 
 def read_file(filename):
-    with open(filename, encoding=utf-8) as f:
+    with open(filename, encoding='utf-8') as f:
         return f.read().strip()
 
 version = read_file('VERSION')
