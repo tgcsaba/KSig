@@ -15,7 +15,7 @@ setup(
     description='GPU-accelerated computation of the signature kernel',
     long_description=readme,
     long_description_content_type=text/markdown,
-    license=Apache License 2.0,
+    license='Apache License 2.0',
     keywords='machine-learning sequences time-series kernels signatures support-vector-machines cupy scikit-learn sklearn',
     url='https://github.com/tgcsaba/KSig',
     packages=['ksig'],
