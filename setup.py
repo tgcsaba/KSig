@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def read_file(filename):
     with open(filename, encoding='utf-8') as f:
@@ -18,7 +18,7 @@ setup(
     license='Apache License 2.0',
     keywords='machine-learning sequences time-series kernels signatures support-vector-machines cupy scikit-learn sklearn',
     url='https://github.com/tgcsaba/KSig',
-    packages=['ksig'],
+    packages=find_packages(),
     install_requires=['numpy>=1.20.0', 'scikit-learn>=0.24.0', 'cupy>=9.0.0'],
     python_requires='>=3.7',
     classifiers=[
