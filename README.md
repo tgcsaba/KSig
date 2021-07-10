@@ -44,11 +44,12 @@ K_XY = sig_kernel(X, Y) # K_XY has shape (10, 8)
 ```
 
 ## Installation
-Ideally in a clean [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) with Python >= 3.7, run the command
+First, make sure that the `CUDA_PATH` environment variable is properly set if CuPy is not installed yet on your system, otherwise the installer might not find the appropriate location causing the installation to fail. The default CUDA installation path on Linux is `/usr/local/cuda-${CUDA-VERSION}/`, while on Windows it is `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v${CUDA_VERSION}\` where `${CUDA_VERSION}` is for example `10.0`. 
+Then, ideally in a clean [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) with Python >= 3.7, KSig can be installed by 
 ```
 pip install git+https://github.com/tgcsaba/ksig.git
 ```
-Make sure that the `CUDA_PATH` environment variable is properly set if CuPy is not installed yet on your system, otherwise the installer might not find the right location causing the installation to fail. The default CUDA installation path on Linux is `/usr/local/cuda/`, while on Windows it is `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\${CUDA_VERSION}\` where `${CUDA_VERSION}` is for example `v10.0`.
+Also, it seems that CuPy ships CUDA specific versions with the naming convention `cupy-cudaXX`, and these are not properly recognized by the setuptools dependency checker as being a version of CuPy. This is the case in Google Colab environments for example, and there it is recommended to use pip install with the `--no-deps` option to avoid re-installation.
   
 ## More Examples
 
