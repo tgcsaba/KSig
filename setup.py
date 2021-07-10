@@ -4,8 +4,8 @@ def read_file(filename):
     with open(filename, encoding=utf-8) as f:
         return f.read().strip()
 
-version = read_file(VERSION)
-readme = read_file(README.md)
+version = read_file('VERSION')
+readme = read_file('README.md')
 
 setup(
     name='ksig',
