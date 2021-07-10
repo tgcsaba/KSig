@@ -29,7 +29,7 @@ class SignatureBase(Kernel, metaclass=ABCMeta):
     """
     
     @abstractmethod
-    def __init__(self, n_levels : int = 5, order : int = -1, sigma : float = 1.0, difference : bool = True, normalization : bool = False, 
+    def __init__(self, n_levels : int = 5, order : int = 1, sigma : float = 1.0, difference : bool = True, normalization : int = 0, 
                  n_features : Optional[int] = None) -> None:
         self.n_levels = utils.check_positive_value(n_levels, 'n_levels')
         self.order = self.n_levels if order <= 0 or order >= self.n_levels else order
@@ -66,7 +66,7 @@ class SignatureBase(Kernel, metaclass=ABCMeta):
 class SignatureKernel(SignatureBase):
     """Class for full-rank signature kernel."""
     
-    def __init__(self, n_levels : int = 4, order : int = -1, sigma : float = 1.0, difference : bool = True, normalization : bool = False,
+    def __init__(self, n_levels : int = 4, order : int = 1, sigma : float = 1.0, difference : bool = True, normalization : int = 0,
                  n_features : Optional[int] = None, static_kernel : Optional[Kernel] = None) -> None:
     
         super().__init__(n_levels=n_levels, order=order, sigma=sigma, difference=difference, normalization=normalization, n_features=n_features)
@@ -89,11 +89,9 @@ class SignatureKernel(SignatureBase):
             M = self.static_kernel(X.reshape((-1, X.shape[-1])), return_on_gpu=True).reshape((X.shape[0], X.shape[1], X.shape[0], X.shape[1])) if Y is None \
                 else self.static_kernel(X.reshape((-1, X.shape[-1])), Y.reshape((-1, Y.shape[-1])), return_on_gpu=True).reshape((X.shape[0], X.shape[1], Y.shape[0], Y.shape[1]))
                 
-        K = signature_kern(M, self.n_levels, order=self.order, difference=self.difference, return_levels=self.normalization)
+        K = signature_kern(M, self.n_levels, order=self.order, difference=self.difference, return_levels=self.normalization==1)
         
-        if self.normalization:
-            # this is where it gets a bit tricky, since depending on whether this is a symmetric covariance matrix (i.e. Y is None)
-            # or a cross-covariance matrix, we may need to separately compute diagonal entries for the normalization
+        if self.normalization == 1:
             if Y is None:
                 K_X_sqrt = utils.robust_sqrt(utils.matrix_diag(K))
                 K /= K_X_sqrt[..., :, None] * K_X_sqrt[..., None, :]
@@ -102,11 +100,19 @@ class SignatureKernel(SignatureBase):
                 K_Y_sqrt = utils.robust_sqrt(signature_kern(self.static_kernel(Y), self.n_levels, order=self.order, difference=self.difference, return_levels=True))
                 K /= K_X_sqrt[..., :, None] * K_Y_sqrt[..., None, :]
             K = cp.mean(K, axis=0)
+        elif self.normalization == 2:
+            if Y is None:
+                K_X_sqrt = utils.robust_sqrt(utils.matrix_diag(K))
+                K /= K_X_sqrt[:, None] * K_X_sqrt[None, :]
+            else:
+                K_X_sqrt = utils.robust_sqrt(signature_kern(self.static_kernel(X), self.n_levels, order=self.order, difference=self.difference))
+                K_Y_sqrt = utils.robust_sqrt(signature_kern(self.static_kernel(Y), self.n_levels, order=self.order, difference=self.difference))
+                K /= K_X_sqrt[:, None] * K_Y_sqrt[None, :]
             
         return self.sigma**2 * K
     
     def _Kdiag(self, X : ArrayOnGPU) -> ArrayOnGPU:
-        if self.normalization:
+        if self.normalization != 0:
             return cp.full((X.shape[0],), self.sigma**2)
         else:
             return self._compute_kernel(X, diag=True)
@@ -118,7 +124,7 @@ class SignatureKernel(SignatureBase):
 
 class LowRankSignatureKernel(SignatureBase, LowRankFeatures):
     """Class for low-rank signature kernel."""
-    def __init__(self, n_levels : int = 4, order : int = -1, sigma : float = 1.0, difference : bool = True, normalization : bool = False, 
+    def __init__(self, n_levels : int = 4, order : int = 1, sigma : float = 1.0, difference : bool = True, normalization : bool = False, 
                  n_features : Optional[int] = None, static_features : Optional[LowRankFeatures] = None, projection : Optional[RandomProjection] = None) -> None:
     
         super().__init__(n_levels=n_levels, order=order, sigma=sigma, difference=difference, normalization=normalization, n_features=n_features)
@@ -140,10 +146,14 @@ class LowRankSignatureKernel(SignatureBase, LowRankFeatures):
     
     def _compute_features(self, X : ArrayOnGPU) -> ArrayOnGPU:
         U = self.static_features_.transform(X, return_on_gpu=True) if self.static_features is not None else X
-        P = signature_kern_low_rank(U, self.n_levels, order=self.order, difference=self.difference, return_levels=self.normalization, projections=self.projections_)
-        if self.normalization:
+        P = signature_kern_low_rank(U, self.n_levels, order=self.order, difference=self.difference, return_levels=self.normalization==1, projections=self.projections_)
+        if self.normalization == 1:
             P_norms = [utils.robust_sqrt(utils.squared_norm(p, axis=-1)) for p in P]
             P = cp.concatenate([p / P_norms[i][..., None] for i, p in enumerate(P)], axis=-1) / cp.sqrt(self.n_levels + 1)
+        elif self.normalization == 2:
+            P_norms = utils.robust_sqrt(utils.squared_norm(p, axis=-1))
+            P /= P_norms
+        
         return self.sigma * P
         
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
