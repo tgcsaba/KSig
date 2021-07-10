@@ -44,10 +44,11 @@ K_XY = sig_kernel(X, Y) # K_XY has shape (10, 8)
 ```
 
 ## Installation
-Ideally in a clean [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) with Python >= 3.6, run the command
+Ideally in a clean [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) with Python >= 3.7, run the command
 ```
 pip install git+https://github.com/tgcsaba/ksig.git
 ```
+Make sure that the `CUDA_PATH` environment variable is properly set if CuPy is not installed yet on your system, otherwise the installer might not find the right location causing the installation to fail. The default CUDA installation path on Linux is `/usr/local/cuda/`, while on Windows it is `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\${CUDA_VERSION}\` where `${CUDA_VERSION}` is for example `v10.0`.
   
 ## More Examples
 
@@ -60,7 +61,8 @@ This variant of the kernel variant can be defined using the `ksig.kernel.LowRank
 * a `projection` object from `ksig.projections` to keep the size of the low-rank signature factors manageable using randomized projections:
     * `GaussianRandomProjection` implementing vanilla [Gaussian Random Projections](https://arxiv.org/ftp/arxiv/papers/1301/1301.3849.pdf);
     * `VerySparseRandomProjection` using [Very Sparse Random Projections](https://web.stanford.edu/~hastie/Papers/Ping/KDD06_rp.pdf);
-    * `CountSketchRandomProjection` for [CountSketch](https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf) with polynomial multiplication via FFT, i.e. the [TensorSketch](https://dl.acm.org/doi/10.1145/2487575.2487591).
+    * `CountSketchRandomProjection` for [CountSketch](https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf) with polynomial multiplication via FFT, i.e. the [TensorSketch](https://dl.acm.org/doi/10.1145/2487575.2487591);
+    * `TensorizedRandomProjection` corresponding to [Tensorized Random Projections](https://proceedings.mlr.press/v108/rakhshan20a/rakhshan20a.pdf) in the CP format.
 
 The following example can be computed on a GPU with about ~5Gb of free memory in a matter of seconds:
 ```python
