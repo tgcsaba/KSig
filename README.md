@@ -49,7 +49,7 @@ Then, ideally in a clean [conda environment](https://conda.io/projects/conda/en/
 ```
 pip install git+https://github.com/tgcsaba/ksig.git
 ```
-Also, it seems that CuPy ships CUDA specific versions with the naming convention `cupy-cudaXX`, which are not properly recognized by the setuptools as being a version of CuPy. This arises in Google Colab environments for example, and there it is recommended to use pip install with the `--no-deps` option to avoid reinstalling.
+Also, it seems that CuPy ships CUDA specific versions with the naming convention `cupy-cudaXX`, which are not properly recognized by setuptools as being a version of CuPy. This arises in Google Colab environments for example, and there it is recommended to use pip install with the `--no-deps` option to avoid reinstalling.
   
 ## More Examples
 
