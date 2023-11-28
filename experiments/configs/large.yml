@@ -1,0 +1,716 @@
+RFSFDP_UEALARGE:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/scratch/toth/datasets/Multivariate_arff/'
+  dataset__load__name:
+    - InsectWingbeat
+  dataset__load__max_len: 200
+  dataset__preprocess__add_time: True
+  HPGrid__dataset__preprocess__basepoint:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__max_time:
+    !!python/tuple
+    - 0.
+    - 1.
+    - 10.
+    - 100.
+    - 1000.
+  HPGrid__model__hparams__kernel__signature__n_levels:
+    !!python/tuple
+    - 2
+    - 3
+    - 4
+    - 5
+  HPGrid__model__hparams__kernel__signature__normalize:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+  model__hparams__kernel__static__n_components: 500
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rfsf_dp
+  model__svc_name: pre_lin_svc
+RFSFTRP_UEALARGE:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/scratch/toth/datasets/Multivariate_arff/'
+  dataset__load__name:
+    - InsectWingbeat
+  dataset__load__max_len: 200
+  dataset__preprocess__add_time: True
+  HPGrid__dataset__preprocess__basepoint:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__max_time:
+    !!python/tuple
+    - 0.
+    - 1.
+    - 10.
+    - 100.
+    - 1000.
+  HPGrid__model__hparams__kernel__signature__n_levels:
+    !!python/tuple
+    - 2
+    - 3
+    - 4
+    - 5
+  HPGrid__model__hparams__kernel__signature__normalize:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+  model__hparams__kernel__static__n_components: 500
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rfsf_trp
+  model__svc_name: pre_lin_svc
+RFF_UEALARGE:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/scratch/toth/datasets/Multivariate_arff/'
+  dataset__load__name:
+    - InsectWingbeat
+  dataset__load__max_len: 200
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.001
+    - 0.0025
+    - 0.005
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+    - 250.
+    - 500.
+    - 1000.
+  model__hparams__kernel__n_components: 500
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rff
+  model__svc_name: pre_lin_svc
+RWS_UEALARGE:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/scratch/toth/datasets/Multivariate_arff/'
+  dataset__load__name:
+    - InsectWingbeat
+  dataset__load__max_len: 200
+  HPGrid__model__hparams__kernel__stdev:
+    !!python/tuple
+    - 0.001
+    - 0.0025
+    - 0.005
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+    - 250.
+    - 500.
+    - 1000.
+  HPGrid__model__hparams__kernel__max_warp:
+    !!python/tuple
+    - 10
+    - 20
+    - 30
+    - 40
+    - 50
+    - 60
+    - 70
+    - 80
+    - 90
+    - 100
+  model__hparams__kernel__n_components: 500
+  model__hparams__svc__batch_size: 20
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rws
+  model__svc_name: pre_lin_svc
+RFSFDP_FNIRS2MW:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/fNIRS2MW/'
+  dataset__load__name: fNIRS2MW
+  dataset__load__max_len: 200
+  dataset__load__split: 0.2
+  dataset__preprocess__add_time: True
+  HPGrid__dataset__preprocess__basepoint:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__max_time:
+    !!python/tuple
+    - 0.
+    - 1.
+    - 10.
+    - 100.
+    - 1000.
+  HPGrid__model__hparams__kernel__signature__n_levels:
+    !!python/tuple
+    - 2
+    - 3
+    - 4
+    - 5
+  HPGrid__model__hparams__kernel__signature__normalize:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+  model__hparams__kernel__static__n_components: 300
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rfsf_dp
+  model__svc_name: pre_lin_svc
+RFSFTRP_FNIRS2MW:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/fNIRS2MW/'
+  dataset__load__name: fNIRS2MW
+  dataset__load__max_len: 200
+  dataset__load__split: 0.2
+  dataset__preprocess__add_time: True
+  HPGrid__dataset__preprocess__basepoint:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__max_time:
+    !!python/tuple
+    - 0.
+    - 1.
+    - 10.
+    - 100.
+    - 1000.
+  HPGrid__model__hparams__kernel__signature__n_levels:
+    !!python/tuple
+    - 2
+    - 3
+    - 4
+    - 5
+  HPGrid__model__hparams__kernel__signature__normalize:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+  model__hparams__kernel__static__n_components: 300
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rfsf_trp
+  model__svc_name: pre_lin_svc
+RFF_FNIRS2MW:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/fNIRS2MW/'
+  dataset__load__name: fNIRS2MW
+  dataset__load__max_len: 200
+  dataset__load__split: 0.2
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.001
+    - 0.0025
+    - 0.005
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+    - 250.
+    - 500.
+    - 1000.
+  model__hparams__kernel__n_components: 300
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rff
+  model__svc_name: pre_lin_svc
+RWS_FNIRS2MW:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/fNIRS2MW/'
+  dataset__load__name: fNIRS2MW
+  dataset__load__max_len: 200
+  dataset__load__split: 0.2
+  HPGrid__model__hparams__kernel__stdev:
+    !!python/tuple
+    - 0.001
+    - 0.0025
+    - 0.005
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+    - 250.
+    - 500.
+    - 1000.
+  HPGrid__model__hparams__kernel__max_warp:
+    !!python/tuple
+    - 10
+    - 20
+    - 30
+    - 40
+    - 50
+    - 60
+    - 70
+    - 80
+    - 90
+    - 100
+  model__hparams__kernel__n_components: 300
+  model__hparams__svc__batch_size: 20
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rws
+  model__svc_name: pre_lin_svc
+RFSFDP_SITS1M:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/SITS1M/'
+  dataset__load__name: SITS1M
+  dataset__load__max_len: 200
+  dataset__preprocess__add_time: True
+  HPGrid__dataset__preprocess__basepoint:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__max_time:
+    !!python/tuple
+    - 0.
+    - 1.
+    - 10.
+    - 100.
+    - 1000.
+  HPGrid__model__hparams__kernel__signature__n_levels:
+    !!python/tuple
+    - 2
+    - 3
+    - 4
+    - 5
+  HPGrid__model__hparams__kernel__signature__normalize:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+  model__hparams__kernel__static__n_components: 100
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rfsf_dp
+  model__svc_name: pre_lin_svc
+RFSFTRP_SITS1M:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/SITS1M/'
+  dataset__load__name: SITS1M
+  dataset__load__max_len: 200
+  dataset__preprocess__add_time: True
+  HPGrid__dataset__preprocess__basepoint:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__dataset__preprocess__max_time:
+    !!python/tuple
+    - 0.
+    - 1.
+    - 10.
+    - 100.
+    - 1000.
+  HPGrid__model__hparams__kernel__signature__n_levels:
+    !!python/tuple
+    - 2
+    - 3
+    - 4
+    - 5
+  HPGrid__model__hparams__kernel__signature__normalize:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+  model__hparams__kernel__static__n_components: 100
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rfsf_trp
+  model__svc_name: pre_lin_svc
+RFF_SITS1M:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/SITS1M/'
+  dataset__load__name: SITS1M
+  dataset__load__max_len: 200
+  HPGrid__dataset__preprocess__lead_lag:
+    !!python/tuple
+    - False
+    - True
+  HPGrid__model__hparams__kernel__static__bandwidth:
+    !!python/tuple
+    - 0.001
+    - 0.0025
+    - 0.005
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+    - 250.
+    - 500.
+    - 1000.
+  model__hparams__kernel__n_components: 100
+  model__hparams__svc__batch_size: 100
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rff
+  model__svc_name: pre_lin_svc
+RWS_SITS1M:
+  experiment__id:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  experiment__dir: ./results/
+  dataset__load__dir: '/home/toth/Documents/SITS1M/'
+  dataset__load__name: SITS1M
+  dataset__load__max_len: 200
+  HPGrid__model__hparams__kernel__stdev:
+    !!python/tuple
+    - 0.001
+    - 0.0025
+    - 0.005
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.1
+    - 0.25
+    - 0.5
+    - 1.
+    - 2.5
+    - 5.
+    - 10.
+    - 25.
+    - 50.
+    - 100.
+    - 250.
+    - 500.
+    - 1000.
+  HPGrid__model__hparams__kernel__max_warp:
+    !!python/tuple
+    - 10
+    - 20
+    - 30
+    - 40
+    - 50
+    - 60
+    - 70
+    - 80
+    - 90
+    - 100
+  model__hparams__kernel__n_components: 100
+  model__hparams__svc__batch_size: 20
+  model__hparams__svc__need_kernel_fit: True
+  model__hparams__svc__on_gpu: True
+  model__hparams__svc__svc_grid__C:
+    !!python/tuple
+    - 1
+    - 10
+    - 100
+    - 1000
+    - 10000
+  model__kernel_name: rws
+  model__svc_name: pre_lin_svc
