@@ -16,9 +16,9 @@ Available time series features are:
 
 ## Introduction
 
-The signature kernel is a similarity measure for sequences, that lifts a kernel on a given domain to **a kernel for sequences in that domain** strong theoretical guarantees:
-- It is a universal nonlinearity for time series, which means that it is flexible enough to approximate any continuous function on compact sets (of sequences.)
-- Invariant to natural transformation of time series called reparametrization (in the discrete setting often called time warping), but can be made sensitive to it by including parametrization (time) as an additional channel.
+The signature kernel is one of the most powerful similarity smeasure for sequences, which lifts a kernel on a given domain to **a kernel for sequences in that domain** with strong theoretical guarantees:
+- It is a universal nonlinearity for time series, which means that it is flexible enough to approximate any continuous function on compact sets of sequences.
+- Invariant to a natural transformation of time series called reparametrization (in the discrete setting often called time warping), but can be made sensitive to it by including time parametrization as an additional channel.
 
 The signature kernel between sequences can be computed using an instantiation of the `ksig.kernels.SignatureKernel` (also, see `ksig.kernels.SignaturePDEKernel`) class by lifting a static kernel (i.e. in this case an RBF kernel for vector-valued data from the `ksig.static.kernels.RBFKernel` class) to a kernel for sequences as:
 ```python
@@ -118,12 +118,12 @@ Y = np.random.randn(n_seq2, l_seq2, n_feat)
 
 # Compute the kernel matrix between X and Y.
 # The kernel does not have to be fitted a second time.
-K_XY = lr_sig_kernel(X, Y)  # K_XY has shape (1000, 800)
+K_XY = rfsf_trp_kernel(X, Y)  # K_XY has shape (1000, 800)
 
 # Alternatively, we may compute features separately for X and Y. Under the hood,
 # this is what the call method does, i.e. compute features and take their inner product.
-P_X = lr_sig_kernel.transform(X)  # P_X has shape (1000, 501)
-P_Y = lr_sig_kernel.transform(Y)  # P_Y shape shape (800, 501)
+P_X = rfsf_trp_kernel.transform(X)  # P_X has shape (1000, 501)
+P_Y = rfsf_trp_kernel.transform(Y)  # P_Y shape shape (800, 501)
 
 # Check that the results match.
 print(np.linalg.norm(K_XX - P_X @ P_X.T))
