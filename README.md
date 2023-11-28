@@ -11,7 +11,7 @@ Available time series features are:
 - [Vanilla Path Signatures](https://arxiv.org/pdf/2206.14674.pdf) computing iterated integrals of a sequence lifted to a path by piecewise linear interpolation;
 - [Low-Rank Signature Features](https://jmlr.org/papers/volume20/16-314/16-314.pdf) computes signature features using a low-rank algorithm which iteratively approximates outer products, see Algorithm 4;
 - [Random Fourier Signature Features](https://arxiv.org/pdf/2311.12214.pdf) using Random Fourier Features and random projection approaches for tensors, see Algorithms 2 and 3;
-- [Random Warping Series](https://proceedings.mlr.press/v84/wu18b/wu18b.pdf) that computes Dynamic Time Warping alignments between input sequences and random time series, see Algorithm 4.
+- [Random Warping Series](https://proceedings.mlr.press/v84/wu18b/wu18b.pdf) that computes Dynamic Time Warping alignments between input sequences and random time series, see Algorithm 1.
 
 
 ## Introduction
@@ -38,7 +38,8 @@ sig_kernel = ksig.kernels.SignatureKernel(n_levels, static_kernel=static_kernel)
 n_seq, l_seq, n_feat = 10, 50, 5 
 X = np.random.randn(n_seq, l_seq, n_feat)
 
-# Sequence kernels take as input an array of sequences of ndim == 3, and work as a callable for computing the kernel matrix. 
+# Sequence kernels take as input an array of sequences of ndim == 3,
+# and work as a callable for computing the kernel matrix. 
 K_XX = sig_kernel(X)  # K_XX has shape (10, 10).
 
 # The diagonal kernel entries can also be computed.
@@ -96,8 +97,10 @@ static_feat = ksig.static.features.RandomFourierFeatures(n_components=n_componen
 # Instantiate tensor random projections.
 proj = ksig.projections.TensorizedRandomProjection(n_components=n_components)
 
-# The RFSF-TRP feature map and kernel. Additionally to working as a callable for computing a kernel, it implements a fit and a transform method.
-rfsf_trp_kernel = ksig.kernels.SignatureFetures(n_levels=n_levels, static_features=static_feat, projection=proj)
+# The RFSF-TRP feature map and kernel. Additionally to working as a callable for
+# computing a kernel, it implements a fit and a transform method.
+rfsf_trp_kernel = ksig.kernels.SignatureFetures(
+    n_levels=n_levels, static_features=static_feat, projection=proj)
 
 # Generate 1000 sequences of length 200 with 100 features.
 n_seq, l_seq, n_feat = 1000, 200, 100
@@ -117,8 +120,9 @@ Y = np.random.randn(n_seq2, l_seq2, n_feat)
 # The kernel does not have to be fitted a second time.
 K_XY = lr_sig_kernel(X, Y)  # K_XY has shape (1000, 800)
 
-# Alternatively, we may compute features separately for X and Y. Under the hood, this is what the call method does.
-P_X = lr_sig_kernel.transform(X)  # P_X has shape (n_seq, 1+n_levels*n_components) i.e. (1000, 501) in this case
+# Alternatively, we may compute features separately for X and Y. Under the hood,
+# this is what the call method does, i.e. compute features and take their inner product.
+P_X = lr_sig_kernel.transform(X)  # P_X has shape (1000, 501)
 P_Y = lr_sig_kernel.transform(Y)  # P_Y shape shape (800, 501)
 
 # Check that the results match.
@@ -158,7 +162,7 @@ Results on [Multivariate UEA Datasets](https://timeseriesclassification.com/) wi
 | Avg.acc. | _0.740_ | 0.738 | __0.756__ | 0.735 | 0.710 | 0.702 | 0.692 | 0.656 |
 | Avg.rank | 3.652 | 3.739 | __2.348__ | _2.957_ | 4.043 | 4.217 | 4.913 | 5.957 |
 
-Results on [Multivariate UEA Datasets](https://timeseriesclassification.com/) with ($N > 1000$), [`fNIRMS2MW`](https://github.com/tufts-ml/fNIRS-mental-workload-classifiers), [`SITS11M`](https://cloudstor.aarnet.edu.au/plus/index.php/s/pRLVtQyNhxDdCoM):
+Results on [Multivariate UEA Datasets](https://timeseriesclassification.com/) with ($N > 1000$), [`fNIRMS2MW`](https://github.com/tufts-ml/fNIRS-mental-workload-classifiers) ($N = 10^5$), [`SITS11M`](https://cloudstor.aarnet.edu.au/plus/index.php/s/pRLVtQyNhxDdCoM) ($N = 10^6$):
 
 | | RFSF-DP | RFSF-TRP | RWS | RFF |
 | --- | --- | --- | --- | --- |
