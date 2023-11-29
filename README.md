@@ -9,14 +9,14 @@ The time series kernels included in this package are:
 
 Available time series features are:
 - [Vanilla Path Signatures](https://arxiv.org/pdf/2206.14674.pdf) computing iterated integrals of a sequence lifted to a path by piecewise linear interpolation;
-- [Low-Rank Signature Features](https://jmlr.org/papers/volume20/16-314/16-314.pdf) computes signature features using a low-rank algorithm which iteratively approximates outer products, see Algorithm 4;
+- [Low-Rank Signature Features](https://jmlr.org/papers/volume20/16-314/16-314.pdf) computes signature features using a low-rank algorithm which iteratively approximates outer products, see Algorithm 5;
 - [Random Fourier Signature Features](https://arxiv.org/pdf/2311.12214.pdf) using Random Fourier Features and random projection approaches for tensors, see Algorithms 2 and 3;
 - [Random Warping Series](https://proceedings.mlr.press/v84/wu18b/wu18b.pdf) that computes Dynamic Time Warping alignments between input sequences and random time series, see Algorithm 1.
 
 
 ## Introduction
 
-The signature kernel is one of the most powerful similarity smeasure for sequences, which lifts a kernel on a given domain to **a kernel for sequences in that domain** with strong theoretical guarantees:
+The signature kernel is one of the most powerful similarity measures for sequences, which lifts a kernel on a given domain to **a kernel for sequences in that domain** with strong theoretical guarantees:
 - It is a universal nonlinearity for time series, which means that it is flexible enough to approximate any continuous function on compact sets of sequences.
 - Invariant to a natural transformation of time series called reparametrization (in the discrete setting often called time warping), but can be made sensitive to it by including time parametrization as an additional channel.
 
@@ -131,7 +131,7 @@ print(np.linalg.norm(K_XY - P_X @ P_Y.T))
 ```
 
 ## Results
-The experiments can be run using the code provided in the `experiments` directory. The results displayed here are the ones appearing on [here](https://arxiv.org/pdf/2311.12214.pdf).
+The experiments can be run using the code provided in the `experiments` directory. The results displayed here are the ones appearing on [here](https://arxiv.org/pdf/2311.12214.pdf). We have done our best efforts to aid in reproducibility by using run dependent seeds, however, we have also observed minor differences across CUDA and `cupy` versions in the produced results.
 
 Results on [Multivariate UEA Datasets](https://timeseriesclassification.com/) with ($N \leq 1000$):
 | | RFSF-DP | RFSF-TRP | KSig | KSigPDE | RWS | GAK | RBF | RFF |
