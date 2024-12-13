@@ -227,6 +227,7 @@ def signature_kern_first_order_low_rank(
         R = cp.reshape(R[..., :, None] * U[i][..., None, :], (n_X, l_X, -1))
       else:
         R = cp.reshape(R[..., :, None] * U[..., None, :], (n_X, l_X, -1))
+      R_sum = cp.sum(R, axis=1)
     else:
       if isinstance(U, list):
         R = projections[i](R, U[i], return_on_gpu=True)
