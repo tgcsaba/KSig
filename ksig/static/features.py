@@ -339,3 +339,61 @@ class RandomFourierFeatures(StaticFeatures):
     return features.reshape(X.shape[:-1] + (-1,))
   
 # -----------------------------------------------------------------------------
+
+
+class RandomFourier1DFeatures(StaticFeatures):
+  """Class for Random Fourier Features for the Gaussian (RBF) kernel.
+
+  Reference:
+    Yarin Gal and Richard Turner. Improving the gaussian process sparse spectrum
+    approximation by representing uncertainty in frequency inputs. In Interna-
+    tional Conference on Machine Learning, pages 655–664. PMLR, 2015.
+  """
+
+  def __init__(self, bandwidth: float = 1., n_components: int = 100,
+               random_state: Optional[RandomStateOrSeed] = None):
+    """Initializer for the `RandomFourierFeatures` class.
+
+    Args:
+      bandwidth: Bandwidth hyperparameter dividing the input data.
+      n_components: The number of feature components to use in the embedding.
+      random_state: A `cupy.random.RandomState`, an `int` seed or `None`.
+    """
+    super().__init__(n_components=n_components, random_state=random_state)
+    self.bandwidth = utils.check_positive_value(bandwidth, 'bandwidth')
+
+  def _make_feature_components(self, X: ArrayOnCPUOrGPU):
+    """Initializes internal variables, called by `fit`.
+
+    This method samples a Gaussian matrix with shape
+    `[n_features, n_components]` and standard deviation `1. / bandwidth`.
+
+    Args:
+      X: A data array on CPU or GPU.
+    """
+    self.n_components_ = self.n_components
+    self.random_weights_ = 1. / self.bandwidth * self.random_state.normal(
+      size=[self.n_features_, self.n_components_])
+    self.random_shift_ = 2*cp.pi * self.random_state.uniform(
+      size=[1, self.n_components_]
+    )
+
+  def _compute_features(self, X: ArrayOnGPU) -> ArrayOnGPU:
+    """Computes random Fourier features, called by `transform`.
+
+    This method projects the data onto the stored random weights, pushes it
+    through cosine and a sine activations, and rescales it.
+
+    Args:
+      X: A data array on CPU or GPU.
+
+    Returns:
+      The random Fourier feature map as A data array on GPU.
+    """
+    projection = utils.matrix_mult(
+      X.reshape([-1, self.n_features_]), self.random_weights_)
+    features = cp.cos(projection + self.random_shift_)
+    features *= cp.sqrt(2 / self.n_components)
+    return features.reshape(X.shape[:-1] + (-1,))
+
+# -----------------------------------------------------------------------------
