@@ -62,7 +62,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
 
   def _get_svc_model(self) -> object:
     """Returns a new instance of a dual SVC model.
-    
+
     Returns:
       An instance of a dual SVC model, which is to be fitted to the data.
     """
@@ -71,7 +71,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
   def _precompute_model_inputs(self, X: Optional[ArrayOnCPUOrGPU] = None
                               ) -> ArrayOnCPU:
     """Precomputes the kernel matrix, which is used as iinput for the SVC model.
-    
+
     If `X` is not provided, training is assumed and the kernel matrix is
     computed using the stored training data `self.X`, otherwise it is computed
     using the provided `X` matrix and the stored data in `self.X`.
@@ -93,7 +93,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
         kernel_mat = cp.asnumpy(self._precompute_matrix_mult(feature_mat))
       else:
         # Compute kernel matrix.
-        kernel_mat = self._precompute_kernel_mat(X)
+        kernel_mat = self._precompute_kernel_mat(self.X)
     else:  # Testing.
       if self.has_transform:
         # Compute feature matrix.
@@ -103,7 +103,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
           feature_mat, self.X_feat))
       else:
         # Compute kernel matrix.
-        kernel_mat = self.precompute_kernel_mat(X, self.X)
+        kernel_mat = self._precompute_kernel_mat(X, self.X)
     return kernel_mat
 
 # ------------------------------------------------------------------------------
