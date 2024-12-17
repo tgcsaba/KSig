@@ -237,7 +237,7 @@ class GaussianRandomProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    return self._project(utils.outer_prod(X, Z))
+    return self._project(utils.outer_prod(X, Y))
 
 
 # ------------------------------------------------------------------------------
