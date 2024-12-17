@@ -74,7 +74,7 @@ class RandomProjection(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                      Y: Optional[ArrayOnCPUOrGPU] = None,
                      reset: bool = False
                      ) -> Tuple[ArrayOnCPUOrGPU, Optional[ArrayOnCPUOrGPU]]:
-    """Validates the input data, i.e. dim. check for matching `n_features`. 
+    """Validates the input data, i.e. dim. check for matching `n_features`.
 
     Args:
       X: A data array on CPU or GPU.
@@ -137,7 +137,7 @@ class RandomProjection(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
   def transform(self, X: ArrayOnCPUOrGPU, Y: Optional[ArrayOnCPUOrGPU] = None,
                 return_on_gpu: bool = False) -> ArrayOnCPUOrGPU:
     """Validates the input data, and computes its projection.
-    
+
     If `Y` is given, then the projection is applied to the outer product
     of arrays `X` and `Y` along the last axis, maybe more efficiently than
     computing the outer product first, then the projection.
@@ -166,7 +166,7 @@ class RandomProjection(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
   def __call__(self, X: ArrayOnCPUOrGPU, Y: Optional[ArrayOnCPUOrGPU] = None,
                return_on_gpu : bool = False) -> ArrayOnCPUOrGPU:
     """Implementes the basic call method of a random projection object.
-    
+
     If `Y` is given, then the projection is applied to the outer product
     of arrays `X` and `Y` along the last axis, maybe more efficiently than
     computing the outer product first, then the projection.
@@ -278,7 +278,7 @@ class SubsamplingProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    XY_proj = utils.subsample_outer_prod_comps(X, Y, self.sampled_idx_)
+    XY_proj = utils.subsample_outer_prod(X, Y, self.sampled_idx_)
     return self.scaling_ * XY_proj
 
 
@@ -369,10 +369,10 @@ class VerySparseRandomProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    XY_proj = utils.subsample_outer_prod_comps(X, Y, self.sampled_idx_)
+    XY_proj = utils.subsample_outer_prods(X, Y, self.sampled_idx_)
     return self.scaling_ * utils.matrix_mult(
       cp.reshape(XY_proj, [-1, self.n_sampled_]), self.components_,
-      transpose_Y=True).reshape(X_proj.shape[:-1] + (-1,))
+      transpose_Y=True).reshape(XY_proj.shape[:-1] + (-1,))
 
 
 # ------------------------------------------------------------------------------
@@ -597,7 +597,7 @@ class DiagonalProjection(RandomProjection):
                      Y: Optional[ArrayOnCPUOrGPU] = None,
                      reset: bool = False
                      ) -> Tuple[ArrayOnCPUOrGPU, Optional[ArrayOnCPUOrGPU]]:
-    """Validates the input data, i.e. reshape `Y` and check dims. 
+    """Validates the input data, i.e. reshape `Y` and check dims.
 
     Args:
       X: A data array on CPU or GPU.

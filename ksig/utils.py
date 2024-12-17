@@ -252,7 +252,7 @@ def draw_bernoulli_matrix(shape: Sequence[int], prob: float = 0.5,
 # Projection utils.
 # -----------------------------------------------------------------------------
 
-def subsampled_outer_prod(X: ArrayOnGPU, Y: ArrayOnGPU,
+def subsample_outer_prod(X: ArrayOnGPU, Y: ArrayOnGPU,
                           sampled_idx: Union[ArrayOnGPU, Sequence[int]]
                           ) -> ArrayOnGPU:
   """Computes a subsampled outer product of two batch of features.
