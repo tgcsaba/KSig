@@ -3,8 +3,6 @@
 import argparse
 import os
 import yaml
-
-from experiment import run_experiment
 from utils import search_space_to_configs
 
 
@@ -15,8 +13,9 @@ if __name__ == '__main__':
   parser.add_argument('--config', '-c', type=str, default='small')
   args = parser.parse_args()
 
-  # Set which GPU to use.
-  os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_id)
+  os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_id) # Set which GPU to use.
+
+  from experiment import run_experiment  # Only import now so GPU is correctly set.
 
   # Load search space from config file.
   config_file = f'./configs/{args.config}.yml'
