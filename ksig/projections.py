@@ -589,9 +589,9 @@ class DiagonalProjection(RandomProjection):
     only meant to be used inside the low-rank signature kernel algorithm
     combined with random Fourier features as static features.
   """
-  def __init__(self):
+  def __init__(self, internal_size=2):
     """Initializer for `DiagonalProjection` class."""
-    pass
+    self.internal_size = internal_size
 
   def _validate_data(self, X: ArrayOnCPUOrGPU,
                      Y: Optional[ArrayOnCPUOrGPU] = None,
@@ -622,13 +622,14 @@ class DiagonalProjection(RandomProjection):
       ValueError: If `not reset` and the `n_features_` dimension doesn't match.
     """
     n_features = X.shape[-1]
+    q = self.internal_size
     if reset or not hasattr(self, 'n_features_') or self.n_features_ is None:
       self.n_features_ = n_features
     if X.shape[-1] != self.n_features_:
       raise ValueError(
         'Data `X` has a different number of features than during fit.',
         f'({X.shape[-1]} != {self.n_features_})')
-    if Y is not None and Y.shape[-1] // 2 != self.n_features_:
+    if Y is not None and Y.shape[-1] // q != self.n_features_:
       raise ValueError(
         'Data `Y` has a different number of features than during fit.',
         f'({Y.shape[-1]} != {self.n_features_})')
@@ -652,7 +653,8 @@ class DiagonalProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    return X.reshape(X.shape[:-1] + (2, -1))
+    q = self.internal_size
+    return X.reshape(X.shape[:-1] + (q, -1))
 
   def _project_outer_prod(self, X: ArrayOnGPU, Y: ArrayOnGPU) -> ArrayOnGPU:
     """Computes the Hadamard product and rescales, called by `transform`.
@@ -664,7 +666,8 @@ class DiagonalProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    Y = Y.reshape(Y.shape[:-1] + (2, -1))
+    q = self.internal_size
+    Y = Y.reshape(Y.shape[:-1] + (q, -1))
     return cp.sqrt(self.n_features_) * cp.reshape(
       X[..., None, :] * Y[..., None, :, :], X.shape[:-2] + (-1, X.shape[-1]))
 
