@@ -369,7 +369,7 @@ class VerySparseRandomProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    XY_proj = utils.subsample_outer_prods(X, Y, self.sampled_idx_)
+    XY_proj = utils.subsample_outer_prod(X, Y, self.sampled_idx_)
     return self.scaling_ * utils.matrix_mult(
       cp.reshape(XY_proj, [-1, self.n_sampled_]), self.components_,
       transpose_Y=True).reshape(XY_proj.shape[:-1] + (-1,))
