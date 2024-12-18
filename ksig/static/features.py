@@ -61,7 +61,7 @@ class KernelFeatures(Kernel, TransformerMixin, metaclass=ABCMeta):
   def _validate_data(self, X: ArrayOnCPUOrGPU, reset: bool = False
                      ) -> ArrayOnCPUOrGPU:
     """Validates the input data array `X`.
-    
+
     This method returns `X` as derived classes might make changes to it.
 
     Args:
@@ -74,7 +74,7 @@ class KernelFeatures(Kernel, TransformerMixin, metaclass=ABCMeta):
   @abstractmethod
   def _make_feature_components(self, X: ArrayOnCPUOrGPU):
     """Initializes internal variables, called by `fit`.
-    
+
     Args:
       X: A data array on CPU or GPU.
     """
@@ -337,11 +337,11 @@ class RandomFourierFeatures(StaticFeatures):
       (cp.sin(projection), cp.cos(projection)), axis=-1)
     features /= cp.sqrt(self.n_components)
     return features.reshape(X.shape[:-1] + (-1,))
-  
+
 # -----------------------------------------------------------------------------
 
 
-class RandomFourier1DFeatures(StaticFeatures):
+class RandomFourierFeatures1D(StaticFeatures):
   """Class for Random Fourier Features for the Gaussian (RBF) kernel.
 
   Reference:
