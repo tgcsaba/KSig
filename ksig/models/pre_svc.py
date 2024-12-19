@@ -32,7 +32,6 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
                n_jobs: int = -1,
                need_kernel_fit: bool = False,
                batch_size: Optional[int] = None,
-               fit_samples: Optional[int] = None,
                has_transform: bool = False):
     """Initializer for `PrecomputedKernelSVC`.
 
@@ -47,12 +46,11 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
       batch_size: If given, compute the kernel matrix in chunks of shape
         `[batch_size, batch_size]`, or in chunks of shape [batch_size, ...]
         if `has_transform` is set to true.
-      fit_samples: Number of samples used for fitting the kernel.
       has_transform: Whether the kernel has a feature transform.
     """
     super().__init__(kernel, svc_hparams=svc_hparams, svc_grid=svc_grid, cv=cv,
                      n_jobs=n_jobs, need_kernel_fit=need_kernel_fit,
-                     batch_size=batch_size, fit_samples=fit_samples)
+                     batch_size=batch_size)
     self.has_transform = has_transform
     # Set default SVC hparams.
     for key, val in _DEFAULT_SVC_HPARAMS.items():
