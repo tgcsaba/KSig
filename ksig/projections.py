@@ -327,21 +327,20 @@ class VerySparseRandomProjection(RandomProjection):
       X: A data array on GPU.
       Y: An optional data array on GPU.
     """
-    if self.sparsity == 'log':
+    if self.sparsity == 'log':  # Very sparse.
       prob_nonzero = cp.log(self.n_features_) / self.n_features_
-    elif self.sparsity == 'sqrt':
+    elif self.sparsity == 'sqrt':  # Less sparse.
       prob_nonzero = 1. / cp.sqrt(self.n_features_)
-    components_full = (
-      utils.draw_rademacher_matrix(
-        [self.n_components, self.n_features_], random_state=self.random_state)
-      * utils.draw_bernoulli_matrix(
+    components_full = utils.draw_bernoulli_matrix(  # Draw sparse Bernoulli matrix.
         [self.n_components, self.n_features_], prob=prob_nonzero,
-        random_state=self.random_state))
-    self.sampled_idx_ = cp.where(
+        random_state=self.random_state)
+    components_full[0, 0] = 1  # Force at least one nonzero component.
+    components_full = utils.draw_rademacher_matrix(  # Random flips.
+      [self.n_components, self.n_features_], random_state=self.random_state)
+    self.sampled_idx_ = cp.where(  # Subsample nonzero columns.
       cp.any(utils.robust_nonzero(components_full), axis=0))[0]
     self.n_sampled_ = self.sampled_idx_.shape[0]
-    self.components_ = cp.squeeze(
-      cp.take(components_full, self.sampled_idx_, axis=1))
+    self.components_ = cp.take(components_full, self.sampled_idx_, axis=1)
     self.scaling_ = cp.sqrt(1. / (prob_nonzero * self.n_components))
 
   def _project(self, X: ArrayOnGPU) -> ArrayOnGPU:
@@ -377,7 +376,7 @@ class VerySparseRandomProjection(RandomProjection):
 
 # ------------------------------------------------------------------------------
 
-class CountSketchRandomProjection(RandomProjection):
+class TensorSketch(RandomProjection):
   """Class for computing count sketch random projections.
 
   Reference:
@@ -454,6 +453,9 @@ class CountSketchRandomProjection(RandomProjection):
     Y_sketch = utils.compute_count_sketch(
       Y, self.hash_idx_, self.hash_bit_, n_components=self.n_components)
     return utils.convolve_fft(X, Y_sketch)
+
+CountSketch = TensorSketch
+CountSketchRandomProjection = TensorSketch
 
 
 # ------------------------------------------------------------------------------
