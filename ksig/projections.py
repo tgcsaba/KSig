@@ -377,7 +377,7 @@ class VerySparseRandomProjection(RandomProjection):
 # ------------------------------------------------------------------------------
 
 class TensorSketch(RandomProjection):
-  """Class for computing count sketch random projections.
+  """Class for computing tensor sketch via convolution of count sketches.
 
   Reference:
     * Charikar, M, Chen, K. and Farach-Colton, M.
