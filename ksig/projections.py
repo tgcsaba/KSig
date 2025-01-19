@@ -74,7 +74,7 @@ class RandomProjection(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                      Y: Optional[ArrayOnCPUOrGPU] = None,
                      reset: bool = False
                      ) -> Tuple[ArrayOnCPUOrGPU, Optional[ArrayOnCPUOrGPU]]:
-    """Validates the input data, i.e. dim. check for matching `n_features`. 
+    """Validates the input data, i.e. dim. check for matching `n_features`.
 
     Args:
       X: A data array on CPU or GPU.
@@ -137,7 +137,7 @@ class RandomProjection(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
   def transform(self, X: ArrayOnCPUOrGPU, Y: Optional[ArrayOnCPUOrGPU] = None,
                 return_on_gpu: bool = False) -> ArrayOnCPUOrGPU:
     """Validates the input data, and computes its projection.
-    
+
     If `Y` is given, then the projection is applied to the outer product
     of arrays `X` and `Y` along the last axis, maybe more efficiently than
     computing the outer product first, then the projection.
@@ -166,7 +166,7 @@ class RandomProjection(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
   def __call__(self, X: ArrayOnCPUOrGPU, Y: Optional[ArrayOnCPUOrGPU] = None,
                return_on_gpu : bool = False) -> ArrayOnCPUOrGPU:
     """Implementes the basic call method of a random projection object.
-    
+
     If `Y` is given, then the projection is applied to the outer product
     of arrays `X` and `Y` along the last axis, maybe more efficiently than
     computing the outer product first, then the projection.
@@ -237,7 +237,7 @@ class GaussianRandomProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    return self._project(utils.outer_prod(X, Z))
+    return self._project(utils.outer_prod(X, Y))
 
 
 # ------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ class SubsamplingProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    XY_proj = utils.subsample_outer_prod_comps(X, Y, self.sampled_idx_)
+    XY_proj = utils.subsample_outer_prod(X, Y, self.sampled_idx_)
     return self.scaling_ * XY_proj
 
 
@@ -327,21 +327,20 @@ class VerySparseRandomProjection(RandomProjection):
       X: A data array on GPU.
       Y: An optional data array on GPU.
     """
-    if self.sparsity == 'log':
+    if self.sparsity == 'log':  # Very sparse.
       prob_nonzero = cp.log(self.n_features_) / self.n_features_
-    elif self.sparsity == 'sqrt':
+    elif self.sparsity == 'sqrt':  # Less sparse.
       prob_nonzero = 1. / cp.sqrt(self.n_features_)
-    components_full = (
-      utils.draw_rademacher_matrix(
-        [self.n_components, self.n_features_], random_state=self.random_state)
-      * utils.draw_bernoulli_matrix(
+    components_full = utils.draw_bernoulli_matrix(  # Draw sparse Bernoulli matrix.
         [self.n_components, self.n_features_], prob=prob_nonzero,
-        random_state=self.random_state))
-    self.sampled_idx_ = cp.where(
+        random_state=self.random_state)
+    components_full[0, 0] = 1  # Force at least one nonzero component.
+    components_full = utils.draw_rademacher_matrix(  # Random flips.
+      [self.n_components, self.n_features_], random_state=self.random_state)
+    self.sampled_idx_ = cp.where(  # Subsample nonzero columns.
       cp.any(utils.robust_nonzero(components_full), axis=0))[0]
     self.n_sampled_ = self.sampled_idx_.shape[0]
-    self.components_ = cp.squeeze(
-      cp.take(components_full, self.sampled_idx_, axis=1))
+    self.components_ = cp.take(components_full, self.sampled_idx_, axis=1)
     self.scaling_ = cp.sqrt(1. / (prob_nonzero * self.n_components))
 
   def _project(self, X: ArrayOnGPU) -> ArrayOnGPU:
@@ -369,16 +368,16 @@ class VerySparseRandomProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    XY_proj = utils.subsample_outer_prod_comps(X, Y, self.sampled_idx_)
+    XY_proj = utils.subsample_outer_prod(X, Y, self.sampled_idx_)
     return self.scaling_ * utils.matrix_mult(
       cp.reshape(XY_proj, [-1, self.n_sampled_]), self.components_,
-      transpose_Y=True).reshape(X_proj.shape[:-1] + (-1,))
+      transpose_Y=True).reshape(XY_proj.shape[:-1] + (-1,))
 
 
 # ------------------------------------------------------------------------------
 
-class CountSketchRandomProjection(RandomProjection):
-  """Class for computing count sketch random projections.
+class TensorSketch(RandomProjection):
+  """Class for computing tensor sketch via convolution of count sketches.
 
   Reference:
     * Charikar, M, Chen, K. and Farach-Colton, M.
@@ -454,6 +453,9 @@ class CountSketchRandomProjection(RandomProjection):
     Y_sketch = utils.compute_count_sketch(
       Y, self.hash_idx_, self.hash_bit_, n_components=self.n_components)
     return utils.convolve_fft(X, Y_sketch)
+
+CountSketch = TensorSketch
+CountSketchRandomProjection = TensorSketch
 
 
 # ------------------------------------------------------------------------------
@@ -589,15 +591,15 @@ class DiagonalProjection(RandomProjection):
     only meant to be used inside the low-rank signature kernel algorithm
     combined with random Fourier features as static features.
   """
-  def __init__(self):
+  def __init__(self, internal_size=2):
     """Initializer for `DiagonalProjection` class."""
-    pass
+    self.internal_size = internal_size
 
   def _validate_data(self, X: ArrayOnCPUOrGPU,
                      Y: Optional[ArrayOnCPUOrGPU] = None,
                      reset: bool = False
                      ) -> Tuple[ArrayOnCPUOrGPU, Optional[ArrayOnCPUOrGPU]]:
-    """Validates the input data, i.e. reshape `Y` and check dims. 
+    """Validates the input data, i.e. reshape `Y` and check dims.
 
     Args:
       X: A data array on CPU or GPU.
@@ -622,13 +624,14 @@ class DiagonalProjection(RandomProjection):
       ValueError: If `not reset` and the `n_features_` dimension doesn't match.
     """
     n_features = X.shape[-1]
+    q = self.internal_size
     if reset or not hasattr(self, 'n_features_') or self.n_features_ is None:
       self.n_features_ = n_features
     if X.shape[-1] != self.n_features_:
       raise ValueError(
         'Data `X` has a different number of features than during fit.',
         f'({X.shape[-1]} != {self.n_features_})')
-    if Y is not None and Y.shape[-1] // 2 != self.n_features_:
+    if Y is not None and Y.shape[-1] // q != self.n_features_:
       raise ValueError(
         'Data `Y` has a different number of features than during fit.',
         f'({Y.shape[-1]} != {self.n_features_})')
@@ -652,7 +655,8 @@ class DiagonalProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    return X.reshape(X.shape[:-1] + (2, -1))
+    q = self.internal_size
+    return X.reshape(X.shape[:-1] + (q, -1))
 
   def _project_outer_prod(self, X: ArrayOnGPU, Y: ArrayOnGPU) -> ArrayOnGPU:
     """Computes the Hadamard product and rescales, called by `transform`.
@@ -664,7 +668,8 @@ class DiagonalProjection(RandomProjection):
     Returns:
       The projected outer-product array on GPU.
     """
-    Y = Y.reshape(Y.shape[:-1] + (2, -1))
+    q = self.internal_size
+    Y = Y.reshape(Y.shape[:-1] + (q, -1))
     return cp.sqrt(self.n_features_) * cp.reshape(
       X[..., None, :] * Y[..., None, :, :], X.shape[:-2] + (-1, X.shape[-1]))
 

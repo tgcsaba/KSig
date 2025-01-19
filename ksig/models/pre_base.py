@@ -16,8 +16,8 @@ _MAT_MUL_BSIZE = 1000
 
 class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
   """Base class for precomputed SVC models.
-  
-  
+
+
   Deriving classes should implement the following methods:
     _get_svc_model: Constructs and returns the SVC model to use.
     _precompute_model_inputs: Precomputes the inputs fed to the SVC model.
@@ -32,8 +32,7 @@ class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
                n_jobs: int = -1,
                need_kernel_fit: bool = False,
                has_transform: bool = False,
-               batch_size: Optional[int] = None,
-               fit_samples: Optional[int] = None):
+               batch_size: Optional[int] = None):
     """Initializer for `PrecomputedSVCBase`.
 
     Args:
@@ -48,7 +47,6 @@ class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
       batch_size: If given, compute the kernel matrix in chunks of shape
         `[batch_size, batch_size]`, or in chunks of shape [batch_size, ...]
         if `has_transform` is set to true.
-      fit_samples: If given, number of samples used for fitting the kernel.
     """
     # Save variables.
     self.kernel = kernel
@@ -59,12 +57,11 @@ class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
     self.need_kernel_fit = need_kernel_fit
     self.has_transform = has_transform
     self.batch_size = batch_size
-    self.fit_samples = fit_samples
 
   @abstractmethod
   def _get_svc_model(self) -> object:
     """Abstract method for constructing the SVC model to use.
-    
+
     Returns:
       An instance of the SVC model, which is to be fitted to the data.
     """
@@ -74,7 +71,7 @@ class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
   def _precompute_model_inputs(self, X: Optional[ArrayOnCPUOrGPU] = None
                                ) -> ArrayOnCPUOrGPU:
     """Abstract method for precomputing the inputs to the SVC model.
-    
+
     If `X` is not provided, training is assumed and the model inputs are
     computed using the stored training data `self.X`, otherwise model inputs
     are computed for testing an already trained model on the provided data `X`.
@@ -238,7 +235,7 @@ class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
     # Save training data.
     self.X, self.y = X, y
     # Initialize model.
-    self.model = self._get_svc_model() 
+    self.model = self._get_svc_model()
     if self.svc_grid is not None:
       # Stratified k-fold cross-validation.
       self.kfold = StratifiedKFold(
@@ -248,10 +245,10 @@ class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
                                 cv=self.kfold, n_jobs=self.n_jobs)
     # Fit the kernel if required.
     if self.need_kernel_fit:
-      if self.fit_samples is not None:
+      if self.batch_size is not None:
         # Select fitting data.
         idx_fit = np.random.choice(
-          range(X.shape[0]), min(self.fit_samples, X.shape[0]), replace=False)
+          range(X.shape[0]), min(self.batch_size, X.shape[0]), replace=False)
         X_fit = X[idx_fit]
       else:
         X_fit = X
@@ -282,5 +279,5 @@ class PrecomputedSVCBase(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
     if isinstance(y_pred, ArrayOnGPU):
       y_pred = cp.asnumpy(y_pred)
     return y_pred
-  
+
 # ------------------------------------------------------------------------------

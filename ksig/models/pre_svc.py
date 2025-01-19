@@ -32,7 +32,6 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
                n_jobs: int = -1,
                need_kernel_fit: bool = False,
                batch_size: Optional[int] = None,
-               fit_samples: Optional[int] = None,
                has_transform: bool = False):
     """Initializer for `PrecomputedKernelSVC`.
 
@@ -47,12 +46,11 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
       batch_size: If given, compute the kernel matrix in chunks of shape
         `[batch_size, batch_size]`, or in chunks of shape [batch_size, ...]
         if `has_transform` is set to true.
-      fit_samples: Number of samples used for fitting the kernel.
       has_transform: Whether the kernel has a feature transform.
     """
     super().__init__(kernel, svc_hparams=svc_hparams, svc_grid=svc_grid, cv=cv,
                      n_jobs=n_jobs, need_kernel_fit=need_kernel_fit,
-                     batch_size=batch_size, fit_samples=fit_samples)
+                     batch_size=batch_size)
     self.has_transform = has_transform
     # Set default SVC hparams.
     for key, val in _DEFAULT_SVC_HPARAMS.items():
@@ -62,7 +60,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
 
   def _get_svc_model(self) -> object:
     """Returns a new instance of a dual SVC model.
-    
+
     Returns:
       An instance of a dual SVC model, which is to be fitted to the data.
     """
@@ -71,7 +69,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
   def _precompute_model_inputs(self, X: Optional[ArrayOnCPUOrGPU] = None
                               ) -> ArrayOnCPU:
     """Precomputes the kernel matrix, which is used as iinput for the SVC model.
-    
+
     If `X` is not provided, training is assumed and the kernel matrix is
     computed using the stored training data `self.X`, otherwise it is computed
     using the provided `X` matrix and the stored data in `self.X`.
@@ -93,7 +91,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
         kernel_mat = cp.asnumpy(self._precompute_matrix_mult(feature_mat))
       else:
         # Compute kernel matrix.
-        kernel_mat = self._precompute_kernel_mat(X)
+        kernel_mat = self._precompute_kernel_mat(self.X)
     else:  # Testing.
       if self.has_transform:
         # Compute feature matrix.
@@ -103,7 +101,7 @@ class PrecomputedKernelSVC(PrecomputedSVCBase):
           feature_mat, self.X_feat))
       else:
         # Compute kernel matrix.
-        kernel_mat = self.precompute_kernel_mat(X, self.X)
+        kernel_mat = self._precompute_kernel_mat(X, self.X)
     return kernel_mat
 
 # ------------------------------------------------------------------------------

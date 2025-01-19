@@ -32,7 +32,6 @@ class PrecomputedFeatureLinSVC(PrecomputedSVCBase):
                n_jobs: int = -1,
                need_kernel_fit: bool = False,
                batch_size: Optional[int] = None,
-               fit_samples: Optional[int] = None,
                on_gpu: bool = False):
     """Initializer for `PrecomputedFeatureLinSVC`.
 
@@ -46,13 +45,12 @@ class PrecomputedFeatureLinSVC(PrecomputedSVCBase):
       need_kernel_fit: Whether the features need to be fitted to the data.
       batch_size: If given, compute the feature matrix in chunks of shape
         `[batch_size, ...]` in order to save memory.
-      fit_samples: Number of samples used for fitting the kernel.
       on_gpu: Whether to use the GPU implementation or not.
     """
     n_jobs = 1 if on_gpu else n_jobs  # GPU implementation does not support it.
     super().__init__(kernel, svc_hparams=svc_hparams, svc_grid=svc_grid, cv=cv,
                      n_jobs=n_jobs, need_kernel_fit=need_kernel_fit,
-                     batch_size=batch_size, fit_samples=fit_samples)
+                     batch_size=batch_size)
     self.on_gpu = on_gpu
     # Set default `LinearSVC` hparams.
     if on_gpu:
@@ -64,7 +62,7 @@ class PrecomputedFeatureLinSVC(PrecomputedSVCBase):
 
   def _get_svc_model(self) -> object:
     """Returns a new instance of a linear SVC model.
-    
+
     Returns:
       An instance of a linear SVC model, which is to be fitted to the data.
     """
@@ -74,7 +72,7 @@ class PrecomputedFeatureLinSVC(PrecomputedSVCBase):
   def _precompute_model_inputs(self, X: Optional[ArrayOnCPUOrGPU] = None
                               ) -> ArrayOnCPU:
     """Precomputes the feature matrix, which is used as input for the LinearSVC.
-    
+
     If `X` is not provided, training is assumed and the kernel matrix is
     computed using the stored training data `self.X`, otherwise it is computed
     using the provided `X` data matrix.
@@ -96,5 +94,5 @@ class PrecomputedFeatureLinSVC(PrecomputedSVCBase):
     elif not self.on_gpu and not isinstance(feature_mat, ArrayOnCPU):
       feature_mat = cp.asnumpy(feature_mat)
     return feature_mat
-  
+
 # ------------------------------------------------------------------------------
