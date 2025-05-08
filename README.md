@@ -2,6 +2,8 @@
 ## <p align='center'> GPU-accelerated computation of popular time series kernels </p>
 A [scikit-learn](https://github.com/scikit-learn/scikit-learn) compatible Python package, which provides a GPU-accelerated implementation for most powerful and popular time series kernels and features using [CuPy](https://github.com/cupy/cupy).
 
+> **GPU Acceleration:** All kernel computations are performed on the GPU via [CuPy](https://github.com/cupy/cupy), providing major speedups on modern NVIDIA hardware.
+
 The time series kernels included in this package are:
 - [Signature Kernel using dynamic programming](https://jmlr.org/papers/volume20/16-314/16-314.pdf), which computes truncated signature kernels exactly, see Algorithms 3 and 6;
 - [Signature-PDE Kernel](https://arxiv.org/pdf/2006.14794.pdf), which approximates the untruncated signature kernel by solving a PDE;
@@ -99,7 +101,7 @@ proj = ksig.projections.TensorizedRandomProjection(n_components=n_components)
 
 # The RFSF-TRP feature map and kernel. Additionally to working as a callable for
 # computing a kernel, it implements a fit and a transform method.
-rfsf_trp_kernel = ksig.kernels.SignatureFetures(
+rfsf_trp_kernel = ksig.kernels.SignatureFeatures(
     n_levels=n_levels, static_features=static_feat, projection=proj)
 
 # Generate 1000 sequences of length 200 with 100 features.
@@ -112,7 +114,7 @@ rfsf_trp_kernel.fit(X)
 # Compute the kernel matrix as before.
 K_XX = rfsf_trp_kernel(X)  # K_XX has shape (1000, 1000).
 
-# GEnerate another array of 800 sequences of length 250 and 100 features.
+# Generate another array of 800 sequences of length 250 and 100 features.
 n_seq2, l_seq2 = 800, 250
 Y = np.random.randn(n_seq2, l_seq2, n_feat)
 
@@ -123,7 +125,7 @@ K_XY = rfsf_trp_kernel(X, Y)  # K_XY has shape (1000, 800)
 # Alternatively, we may compute features separately for X and Y. Under the hood,
 # this is what the call method does, i.e. compute features and take their inner product.
 P_X = rfsf_trp_kernel.transform(X)  # P_X has shape (1000, 501)
-P_Y = rfsf_trp_kernel.transform(Y)  # P_Y shape shape (800, 501)
+P_Y = rfsf_trp_kernel.transform(Y)  # P_Y has shape (800, 501)
 
 # Check that the results match.
 print(np.linalg.norm(K_XX - P_X @ P_X.T))
@@ -178,9 +180,6 @@ Results on [Multivariate UEA Datasets](https://timeseriesclassification.com/) wi
 | Avg.acc. | _0.693_ | __0.699__ | 0.655 | 0.635 |
 | Avg.rank | __1.778__ | _1.889_ | 2.222 | 3.333 |
 
-## Documentation
-Coming very soon...
-
 ## Literature
 
 A non-exhaustive list of some papers that involve signature kernels in one way or another (in chronological order):
@@ -219,6 +218,25 @@ signature kernel scores](https://arxiv.org/pdf/2305.16274.pdf) by Issa, Horvath,
 - [Random Fourier Signature Features](https://arxiv.org/pdf/2311.12214.pdf) by Toth, Oberhauser, Szabo
 
 Contact us if you woud like your paper or project to appear here. 
+
+## Reference
+
+If you use `KSig` in your work, please cite:
+
+> Csaba Tóth, Danilo Jr. Dela Cruz, Harald Oberhauser.  
+> **A User's Guide to `KSig`: GPU-Accelerated Computation of the Signature Kernel**.  
+> *arXiv preprint arXiv:2501.07145*, 2025.  
+> [arXiv:2501.07145](https://arxiv.org/abs/2501.07145)
+
+```bibtex
+@article{toth2025user,
+  title={A User's Guide to \texttt{KSig}: GPU-Accelerated Computation of the Signature Kernel},
+  author={T{\'o}th, Csaba and Cruz, Danilo Jr Dela and Oberhauser, Harald},
+  journal={arXiv preprint arXiv:2501.07145},
+  year={2025}
+}
+```
+
   
 ## Contacts
 
