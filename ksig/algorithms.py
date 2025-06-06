@@ -301,7 +301,8 @@ def signature_kern_higher_order_low_rank(
     n_components = R.shape[-1] if projections is not None else n_d**(i+1)
     if (projections is not None and
         isinstance(projections[i], DiagonalProjection)):
-      R_next = cp.empty((d, n_X, l_X, 2**(i+1), n_components))
+      internal_size = projections[i].internal_size
+      R_next = cp.empty((d, n_X, l_X, internal_size**(i+1), n_components))
     else:
       R_next = cp.empty((d, n_X, l_X, n_components))
     U_next = U[i] if isinstance(U, list) else U
